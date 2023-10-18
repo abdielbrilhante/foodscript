@@ -1,27 +1,33 @@
-# React + TypeScript + Vite
+# FoodScript
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Simple TypeScript programming/simulation game.
 
-Currently, two official plugins are available:
+## Running
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This is a basic Vite project, so after installing the dependencies (the project uses pnpm by default, but any other package manager should work fine), just run:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+```bash
+pnpm dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+And the dev server should then be running on `http://localhost:5173`, where you can run a few games and familiarize yourself with some of the parameters.
+
+## Writing custom agents
+
+The basic repo only has one very simple agent, to make others available just export new ones from the same `agents.ts` file, after which they should then be automatically available to select in the dropdowns.
+
+```typescript
+export const myAgent: AgentFunction = (perception, state) => {
+   ...
+};
+```
+
+It should be a basic model-based reflex agent: it takes a (limited) perception of the current environment (what's in the cells around it, direction, etc.: check our the `reasoning.ts` file for the full object) and returns an action based on it and (optionally) the internal state (TypeScript should help here with the possible actions).
+
+## Basic rules
+
+There's two teams, **Red** and **Blue**, competing in a grid for resources in the form of gold nuggets spread through the arena; the objective is simple: to pick up nuggets, carry them towards one of the color-coded rows (called **terminals**) and drop them off, moving and turning as needed. Dropping gold in the terminal gives the team a point, and the agent is free to roam to search for other nuggets. The game ends after the remaining amount of nuggets is less than the difference between the team scores.
+
+## Parameters
+
+There's a series of parameters that can be changed besides the red/blue team agents, such as initial agent placement in the arena and the amount (%) of agents. The two worth explaining here are the **max runs** and **max carries**: the first is the maximum amount of rounds in the game loop, working as an effective time limit with the FPS so that the game doesn't run foverer in case of a deadlock; the latter is the maximum amount of rounds that an agent can carry a gold nugget without dropping it, after which the nugget gets "taken away" and placed in a random cell in the arena (this is to avoid agents "hogging" gold indefinitely).
