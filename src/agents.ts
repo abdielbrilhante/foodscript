@@ -19,3 +19,23 @@ export const dummy: AgentFunction = (perception) => {
 
   return randomPick('move', 'turnRight', 0.8);
 };
+
+export const avery: AgentFunction = (perception) => {
+  if (perception.carrying && perception.terminal) {
+    return 'drop';
+  }
+
+  if (!perception.carrying && perception.center === 'gold') {
+    return 'pickUp';
+  }
+
+  if (perception.carrying && perception.facingTerminal) {
+    return 'move';
+  }
+
+  if (perception.ahead && perception.ahead !== 'gold') {
+    return 'turnLeft';
+  }
+
+  return randomPick('move', 'turnRight', 0.8);
+};

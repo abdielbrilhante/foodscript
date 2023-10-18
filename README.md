@@ -2,6 +2,8 @@
 
 Simple TypeScript programming/simulation game.
 
+Here's a deployed version (with only a couple of basic agents, see section below on how to build custom ones): https://rad-blini-ed8b9a.netlify.app/
+
 ## Running
 
 This is a basic Vite project, so after installing the dependencies (the project uses pnpm by default, but any other package manager should work fine), just run:
@@ -14,7 +16,7 @@ And the dev server should then be running on `http://localhost:5173`, where you 
 
 ## Writing custom agents
 
-The basic repo only has one very simple agent, to make others available just export new ones from the same `agents.ts` file, after which they should then be automatically available to select in the dropdowns.
+The basic repo only has two very simple agents, to make others available just export new ones from the same `agents.ts` file, after which they should then be automatically available to select in the dropdowns.
 
 ```typescript
 export const myAgent: AgentFunction = (perception, state) => {
@@ -22,7 +24,7 @@ export const myAgent: AgentFunction = (perception, state) => {
 };
 ```
 
-It should be a basic model-based reflex agent: it takes a (limited) perception of the current environment (what's in the cells around it, direction, etc.: check our the `reasoning.ts` file for the full object) and returns an action based on it and (optionally) the internal state (TypeScript should help here with the possible actions).
+It should be a basic model-based reflex agent: it takes a (limited) perception of the current environment (what's in the cells around it, direction, etc.; check out the `reasoning.ts` file for the full object) and returns an action (based on the perception and the - optional - internal state). TypeScript should help here with the possible actions.
 
 ## Basic rules
 
