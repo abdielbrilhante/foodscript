@@ -146,7 +146,6 @@ export class Game {
       team: team,
       reason: agentFunction,
       trunk: null,
-      inbox: [],
       action: null,
       position: position,
       state: {},

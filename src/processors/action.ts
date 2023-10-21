@@ -1,5 +1,5 @@
-import type { Game } from '../core/game';
-import { relativeCell } from '../core/utils';
+import type { Game } from '../sim/game';
+import { relativeCell } from '../sim/utils';
 import type { Agent, Position, Processor } from '../types';
 
 export const actionProcessor: Processor = (game: Game) => {

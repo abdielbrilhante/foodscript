@@ -1,8 +1,14 @@
-import * as agents from './agents';
-import { Game } from './core/game';
 import { useEffect, useState } from 'react';
 
+import * as agents from './agents';
+import { AgentEditor } from './decision-tree/agent-editor';
+import { Game } from './sim/game';
+
 export function App() {
+  return <AgentEditor />;
+}
+
+export function App2() {
   const [game, setGame] = useState<Game>();
   const [running, setRunning] = useState(false);
   const [pristine, setPristine] = useState(true);

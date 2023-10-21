@@ -1,4 +1,4 @@
-import type { Game } from './core/game';
+import type { Game } from './sim/game';
 
 export type Cell = {
   agentId?: number;
@@ -14,7 +14,6 @@ export interface Agent {
   position: Position;
   trunk: { nuggetId: number; runs: number } | null;
   class: string;
-  inbox: string[];
   team: Team;
 }
 
@@ -36,18 +35,16 @@ export type Team = 'red' | 'blue';
 export interface Perception {
   id: number;
 
-  carrying: boolean;
+  isCarrying: boolean;
   direction: 'north' | 'south' | 'east' | 'west';
-  facingTerminal: boolean;
-  terminal: boolean;
+  isFacingTerminal: boolean;
+  isInTerminal: boolean;
   center: PerceptionItem;
   ahead: PerceptionItem;
-  leftish: PerceptionItem;
+  slightLeft: PerceptionItem;
   left: PerceptionItem;
-  rightish: PerceptionItem;
+  slightRight: PerceptionItem;
   right: PerceptionItem;
-
-  inbox: string[];
 }
 
 export type Action = 'turnLeft' | 'turnRight' | 'move' | 'pickUp' | 'drop';
@@ -55,7 +52,6 @@ export type Action = 'turnLeft' | 'turnRight' | 'move' | 'pickUp' | 'drop';
 export type AgentFunction = (
   perception: Perception,
   state: Record<string, unknown>,
-  broadcast: (message: string) => void,
 ) => Action | null;
 
 export type AgentExtractor = (x: number, y: number) => Agent | null;

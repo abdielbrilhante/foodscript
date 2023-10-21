@@ -1,0 +1,56 @@
+.agent-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 24px;
+
+  & .decision-tree-container {
+    border: 1px solid #ccc;
+    flex: 1;
+    margin-top: 16px;
+    overflow: auto;
+    padding: 24px;
+  }
+
+  & .editor-actions {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    & .action-set {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    & button {
+      background: white;
+      border: 1px solid #aaa;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      height: 36px;
+      padding: 0 16px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    & label {
+      & select,
+      & input {
+        background: white;
+        border: 1px solid #aaa;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+        height: 36px;
+        margin-top: 2px;
+        padding: 0 8px;
+      }
+    }
+  }
+}

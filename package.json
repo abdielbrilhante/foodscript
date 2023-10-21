@@ -33,6 +33,11 @@
       "@trivago/prettier-plugin-sort-imports"
     ],
     "singleQuote": true,
-    "quoteProps": "consistent"
+    "quoteProps": "consistent",
+    "importOrder": [
+      "(.*).css",
+      "^[./]"
+    ],
+    "importOrderSeparation": true
   }
 }

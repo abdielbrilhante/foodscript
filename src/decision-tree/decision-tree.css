@@ -1,0 +1,203 @@
+.decision-tree {
+  font-family:
+    JetBrains Mono,
+    monospace;
+  position: relative;
+  user-select: none;
+
+  & .decision {
+    flex-direction: column;
+    position: absolute;
+    width: 160px;
+
+    &.invalid {
+      background: #ffe6e5;
+      border-color: #a42;
+    }
+
+    & .root-label {
+      align-items: center;
+      background: #ddd;
+      display: flex;
+      font-size: 14px;
+      height: 32px;
+      justify-content: center;
+      pointer-events: none;
+      width: 100%;
+    }
+
+    & .vertexes {
+      border-top: 1px solid #999;
+      display: flex;
+      pointer-events: none;
+      width: 100%;
+
+      & .vertex {
+        align-items: center;
+        background: transparent;
+        border: none;
+        bottom: -12px;
+        cursor: move;
+        display: flex;
+        flex: 1;
+        font-size: 13px;
+        font-weight: 500;
+        height: 24px;
+        justify-content: center;
+        padding: 0;
+        pointer-events: none;
+        width: 36px;
+
+        &.invalid {
+          background: #eee;
+        }
+
+        &:not(:first-child) {
+          border-left: 1px solid #ccc;
+        }
+      }
+
+      & input {
+        background: #fff !important;
+        text-align: center;
+      }
+    }
+  }
+
+  & .edge {
+    border-top: 1px solid #999;
+    position: absolute;
+    transform-origin: top left;
+
+    &.invalid {
+      border-color: #a42;
+    }
+  }
+
+  & .action {
+    border-radius: 8px;
+    font-size: 14px;
+    justify-content: center;
+    position: absolute;
+    width: 150px;
+  }
+
+  & .decision,
+  & .action {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #999;
+    cursor: move;
+    display: flex;
+    box-shadow: 0 3px 6px -3px rgba(0, 0, 0, 0.25);
+
+    & label {
+      height: 32px;
+      pointer-events: none;
+      position: relative;
+      width: 100%;
+    }
+
+    & select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+
+      & + .arrow::after {
+        color: #777;
+        content: '▾';
+        font-size: 16px;
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(calc(-50% - 1px));
+      }
+    }
+
+    & select {
+      background: transparent;
+      border-radius: 0;
+      border: none;
+      font-size: 14px;
+      height: 100%;
+      padding: 0 8px;
+      pointer-events: none;
+      text-align: center;
+      width: 100%;
+    }
+
+    & .config {
+      align-items: center;
+      background: #fff;
+      border-radius: 50px;
+      display: none;
+      font-size: 18px;
+      height: 20px;
+      justify-content: center;
+      padding: 0 0 1px 0;
+      position: absolute;
+      width: 20px;
+
+      &.delete {
+        border: 1px solid #a42;
+        color: #a42;
+        cursor: pointer;
+        left: -10px;
+        top: -10px;
+      }
+
+      &.add {
+        border: 1px solid #4a2;
+        bottom: -10px;
+        color: #4a2;
+        cursor: pointer;
+        right: -10px;
+      }
+
+      &.edit {
+        border: 1px solid #24e;
+        border-radius: 3px;
+        bottom: 0;
+        color: #24e;
+        cursor: pointer;
+        font-size: 10px;
+        left: 0;
+        padding: 0 2px;
+        transform: translate(-50%, 50%);
+        width: auto;
+      }
+    }
+
+    &.selected {
+      background: #e5f1ff;
+      border-color: #28f;
+      box-shadow: 0 4px 8px -4px rgba(0, 0, 0, 0.5);
+      padding: 0;
+
+      & .config {
+        display: flex;
+      }
+
+      & .vertex {
+        cursor: pointer;
+        pointer-events: unset;
+
+        &.highlight {
+          background: #fff;
+          text-decoration: underline;
+        }
+      }
+
+      & .vertexes,
+      & label,
+      & select {
+        pointer-events: unset;
+      }
+    }
+
+    &.hovered {
+      background: #e5f1ff;
+      border-color: #28f;
+    }
+  }
+}
