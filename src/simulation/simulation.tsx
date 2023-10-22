@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import './simulation.css';
 
 import * as agents from '../agents';
+import { LocalStorage } from '../shared/local-storage';
 import { Game } from './game';
 
 export function Simulation(props: { switchScreen: () => void }) {
@@ -16,11 +17,11 @@ export function Simulation(props: { switchScreen: () => void }) {
     return {
       id: name,
       name: name,
-      defaultValue: localStorage.getItem(name) ?? defaultValue ?? undefined,
+      defaultValue: LocalStorage.getItem(name) ?? defaultValue ?? undefined,
       onChange: (
         event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
       ) => {
-        localStorage.setItem(name, event.currentTarget.value);
+        LocalStorage.setItem(name, event.currentTarget.value);
         setPristine(false);
       },
     };

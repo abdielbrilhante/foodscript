@@ -1,5 +1,6 @@
 import type { AgentDef } from '../decision-tree/types';
 import { randId } from '../decision-tree/utils';
+import { LocalStorage } from '../shared/local-storage';
 import { Simpleton, startNode } from './dummy';
 
 function json<T>(content: string | null, fallback: T) {
@@ -16,26 +17,26 @@ function json<T>(content: string | null, fallback: T) {
 
 class AgentService {
   constructor() {
-    if (!localStorage.getItem('adt__agents')) {
-      localStorage.setItem('adt__agents', JSON.stringify([Simpleton.id]));
+    if (!LocalStorage.getItem('agents')) {
+      LocalStorage.setItem('agents', JSON.stringify([Simpleton.id]));
       this.persist(Simpleton);
     }
   }
 
   agents() {
-    return json(localStorage.getItem('adt__agents'), [Simpleton.id]);
+    return json(LocalStorage.getItem('agents'), [Simpleton.id]);
   }
 
   parse = (id: string) => {
-    return json<AgentDef | null>(localStorage.getItem(`adt__${id}`), null);
+    return json<AgentDef | null>(LocalStorage.getItem(id), null);
   };
 
   persist(agentDef: AgentDef) {
-    localStorage.setItem(
-      'adt__agents',
+    LocalStorage.setItem(
+      'agents',
       JSON.stringify(Array.from(new Set(this.agents().concat(agentDef.id)))),
     );
-    localStorage.setItem(`adt__${agentDef.id}`, JSON.stringify(agentDef));
+    LocalStorage.setItem(agentDef.id, JSON.stringify(agentDef));
   }
 
   create(name: string) {
@@ -50,13 +51,13 @@ class AgentService {
   }
 
   delete(id: string) {
-    localStorage.setItem(
-      'adt__agents',
+    LocalStorage.setItem(
+      'agents',
       JSON.stringify(
         Array.from(new Set(this.agents().filter((_id) => _id !== id))),
       ),
     );
-    localStorage.removeItem(`adt__${id}`);
+    LocalStorage.removeItem(`${id}`);
   }
 }
 
