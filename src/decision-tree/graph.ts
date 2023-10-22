@@ -1,5 +1,5 @@
 import { agentService } from '../simulation/agents';
-import { actions, perceptions } from '../simulation/constants';
+import { actions, decisions } from '../simulation/constants';
 import type { AgentTree, DecisionItem, EdgeItem } from './types';
 import { randId } from './utils';
 
@@ -143,7 +143,7 @@ export class Graph {
         '<1>': '',
         '<2>': '',
       },
-      test: perceptions[0],
+      test: decisions[0],
       x: 0,
       y: 0,
     });

@@ -1,4 +1,5 @@
-import type { Action, Perception } from '../types';
+import type { decisions } from '../simulation/constants';
+import type { Action } from '../types';
 
 export type AgentTree = (DecisionItem | ActionItem)[];
 
@@ -19,7 +20,7 @@ export interface GraphItem {
 }
 
 export interface DecisionItem extends GraphItem {
-  test: keyof Perception | null;
+  test: (typeof decisions)[number] | null;
   next: Record<string, string>;
 }
 

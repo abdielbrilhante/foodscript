@@ -17,3 +17,24 @@ button,
 select {
   font-family: inherit;
 }
+
+button {
+  background: white;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 16px;
+
+  &.switch-screen {
+    background: #222;
+    border: none;
+    color: #fff;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

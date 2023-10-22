@@ -1,4 +1,4 @@
-export const perceptions = [
+export const decisions = [
   'isCarrying',
   'isInTerminal',
   'isFacingTerminal',

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { Action, Perception } from '../types';
+import type { decisions } from '../simulation/constants';
+import type { Action } from '../types';
 import type { Graph } from './graph';
 import type { DecisionItem } from './types';
 import { useMouseMove } from './use-mouse-move';
@@ -153,7 +154,7 @@ export function useDecisionTree(graph: Graph) {
       const id = event.currentTarget.id.split('__').pop()!;
       const node = graph.findNodeById(id)!;
       if ('test' in node) {
-        node.test = value as keyof Perception;
+        node.test = value as (typeof decisions)[number];
       } else {
         node.command = value as Action;
       }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { perceptions } from '../simulation/constants';
+import { decisions } from '../simulation/constants';
 import type { DecisionItem } from './types';
 import { classes, readable } from './utils';
 
@@ -42,7 +42,7 @@ export function DecisionNode(props: {
             value={node.test}
             onChange={onChangePerception}
           >
-            {perceptions.map((perception) => (
+            {decisions.map((perception) => (
               <option key={perception} value={perception}>
                 {readable(perception)}
               </option>

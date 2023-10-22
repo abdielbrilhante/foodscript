@@ -5,7 +5,9 @@ import './simulation.css';
 import * as agents from '../agents';
 import { Game } from './game';
 
-export function Simulation() {
+export function Simulation(props: { switchScreen: () => void }) {
+  const { switchScreen } = props;
+
   const [game, setGame] = useState<Game>();
   const [running, setRunning] = useState(false);
   const [pristine, setPristine] = useState(true);
@@ -184,6 +186,9 @@ export function Simulation() {
             <span className="gold">0</span>
             <span className="blue">0</span>
           </div>
+          <button className="switch-screen" onClick={switchScreen}>
+            Go to editor
+          </button>
         </div>
       </div>
       <canvas id="arena" />

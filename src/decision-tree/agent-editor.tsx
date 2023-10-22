@@ -16,7 +16,9 @@ function loadAgents() {
 
 let agents = loadAgents();
 
-export function AgentEditor() {
+export function AgentEditor(props: { switchScreen: () => void }) {
+  const { switchScreen } = props;
+
   const [adding, setAdding] = useState(!agents.length);
   const [agent, setAgent] = useState(agents[0]?.id ?? '');
   const [name, setName] = useState('');
@@ -93,15 +95,20 @@ export function AgentEditor() {
                   ))}
                 </select>
               </label>
-              <button type="button" onClick={onDeleteAgent}>
-                Delete
-              </button>
+              {agent !== '1' && (
+                <button type="button" onClick={onDeleteAgent}>
+                  Delete
+                </button>
+              )}
             </>
           )}
         </div>
         <div className="action-set">
           <button onClick={onAddDecision}>Add decision</button>
           <button onClick={onAddAction}>Add action</button>
+          <button className="switch-screen" onClick={switchScreen}>
+            Go to simulation
+          </button>
         </div>
       </div>
       <div className="decision-tree-container">

@@ -1,6 +1,6 @@
 import type { AgentDef } from '../decision-tree/types';
 import { randId } from '../decision-tree/utils';
-import { Dummy, startNode } from './dummy';
+import { Simpleton, startNode } from './dummy';
 
 function json<T>(content: string | null, fallback: T) {
   if (content == null) {
@@ -17,13 +17,13 @@ function json<T>(content: string | null, fallback: T) {
 class AgentService {
   constructor() {
     if (!localStorage.getItem('adt__agents')) {
-      localStorage.setItem('adt__agents', JSON.stringify([Dummy.id]));
-      this.persist(Dummy);
+      localStorage.setItem('adt__agents', JSON.stringify([Simpleton.id]));
+      this.persist(Simpleton);
     }
   }
 
   agents() {
-    return json(localStorage.getItem('adt__agents'), [Dummy.id]);
+    return json(localStorage.getItem('adt__agents'), [Simpleton.id]);
   }
 
   parse = (id: string) => {
