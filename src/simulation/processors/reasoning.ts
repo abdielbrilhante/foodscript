@@ -1,6 +1,6 @@
-import type { Game } from '../sim/game';
-import { relativeCell } from '../sim/utils';
-import type { PerceptionItem, Perception, Processor, Team } from '../types';
+import type { PerceptionItem, Perception, Processor, Team } from '../../types';
+import type { Game } from '../game';
+import { relativeCell } from '../utils';
 
 export const reasoningProcessor: Processor = (game: Game) => {
   function cellState(x: number, y: number, team: Team | null): PerceptionItem {

@@ -1,5 +1,5 @@
-import { agentService } from '../sim/agents';
-import { actions, perceptions } from '../sim/constants';
+import { agentService } from '../simulation/agents';
+import { actions, perceptions } from '../simulation/constants';
 import type { AgentTree, DecisionItem, EdgeItem } from './types';
 import { randId } from './utils';
 

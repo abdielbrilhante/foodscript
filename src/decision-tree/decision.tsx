@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { perceptions } from '../sim/constants';
+import { perceptions } from '../simulation/constants';
 import type { DecisionItem } from './types';
 import { classes, readable } from './utils';
 

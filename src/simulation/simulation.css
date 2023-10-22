@@ -1,0 +1,108 @@
+.arena-container {
+  padding: 24px;
+}
+
+canvas {
+  border: 1px solid #555;
+  display: block;
+  margin: 16px auto 0;
+}
+
+.score {
+  align-items: flex-end;
+  display: flex;
+  justify-content: space-between;
+
+  > .controls {
+    align-items: flex-end;
+    display: flex;
+    gap: 8px;
+
+    > button {
+      background: white;
+      border: 1px solid #aaa;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      height: 36px;
+      padding: 0 16px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    > label {
+      > div {
+        color: #555;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      > input,
+      select {
+        background: white;
+        border: 1px solid #aaa;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 16px;
+        height: 36px;
+        margin-top: 2px;
+        padding: 0 8px;
+      }
+
+      > input[readonly],
+      select[data-readonly='true'] {
+        background: #f8f8f8;
+        border-color: #ccc;
+        pointer-events: none;
+      }
+    }
+  }
+
+  > .stats {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+
+    > span {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    > .scorecards {
+      align-items: flex-end;
+      display: flex;
+
+      > span {
+        color: white;
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+        height: 36px;
+        padding: 8px 16px;
+
+        &.winner {
+          text-decoration: underline;
+        }
+
+        &.red {
+          background: #ab212f;
+          border-bottom-left-radius: 4px;
+          border-top-left-radius: 4px;
+        }
+
+        &.gold {
+          background: #383430;
+        }
+
+        &.blue {
+          background: #212fab;
+          border-bottom-right-radius: 4px;
+          border-top-right-radius: 4px;
+        }
+      }
+    }
+  }
+}

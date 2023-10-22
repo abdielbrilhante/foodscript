@@ -1,6 +1,6 @@
-import type { Game } from '../sim/game';
-import { relativeCell } from '../sim/utils';
-import type { Agent, Position, Processor } from '../types';
+import type { Agent, Position, Processor } from '../../types';
+import type { Game } from '../game';
+import { relativeCell } from '../utils';
 
 export const actionProcessor: Processor = (game: Game) => {
   const { getArenaPosition } = game;

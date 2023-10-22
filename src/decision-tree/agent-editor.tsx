@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import './agent-editor.css';
 
-import { agentService } from '../sim/agents';
+import { agentService } from '../simulation/agents';
 import { DecisionTree } from './decision-tree';
 import type { AgentDef } from './types';
 import { useNodes } from './use-nodes';
@@ -62,6 +62,7 @@ export function AgentEditor() {
           {adding ? (
             <>
               <label htmlFor="name">
+                <div>Agent name</div>
                 <input
                   type="text"
                   name="name"
@@ -78,6 +79,7 @@ export function AgentEditor() {
           ) : (
             <>
               <label htmlFor="agent">
+                <div>Agent</div>
                 <select
                   id="agent"
                   value={agent}

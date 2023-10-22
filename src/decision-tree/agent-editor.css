@@ -5,7 +5,8 @@
   padding: 24px;
 
   & .decision-tree-container {
-    border: 1px solid #ccc;
+    background: #f7f7f7;
+    border: 1px solid #555;
     flex: 1;
     margin-top: 16px;
     overflow: auto;
@@ -13,12 +14,12 @@
   }
 
   & .editor-actions {
-    align-items: center;
+    align-items: flex-end;
     display: flex;
     justify-content: space-between;
 
     & .action-set {
-      align-items: center;
+      align-items: flex-end;
       display: flex;
       justify-content: space-between;
       gap: 8px;
@@ -40,6 +41,12 @@
     }
 
     & label {
+      > div {
+        color: #555;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
       & select,
       & input {
         background: white;

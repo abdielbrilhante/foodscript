@@ -1,6 +1,3 @@
-import { actionProcessor } from '../processors/action';
-import { carryingProcessor } from '../processors/carrying';
-import { reasoningProcessor } from '../processors/reasoning';
 import type {
   AgentFunction,
   Cell,
@@ -11,6 +8,9 @@ import type {
   Position,
 } from '../types';
 import * as placement from './placement';
+import { actionProcessor } from './processors/action';
+import { carryingProcessor } from './processors/carrying';
+import { reasoningProcessor } from './processors/reasoning';
 import { Screen } from './screen';
 
 export class Game {

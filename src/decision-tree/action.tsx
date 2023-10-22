@@ -1,4 +1,4 @@
-import { actions } from '../sim/constants';
+import { actions } from '../simulation/constants';
 import type { ActionItem } from './types';
 import { readable } from './utils';
 

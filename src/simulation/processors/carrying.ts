@@ -1,4 +1,4 @@
-import type { Processor } from '../types';
+import type { Processor } from '../../types';
 
 export const carryingProcessor: Processor = (game) => {
   for (const agent of game.agents) {

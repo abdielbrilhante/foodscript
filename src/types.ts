@@ -1,4 +1,4 @@
-import type { Game } from './sim/game';
+import type { Game } from './simulation/game';
 
 export type Cell = {
   agentId?: number;
