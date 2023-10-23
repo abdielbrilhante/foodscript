@@ -7,14 +7,13 @@ import { useDecisionTree } from './use-decision-tree';
 import { classes } from './utils';
 
 // TODO:
-// copy JSON
-// import (validate) JSON
 // readonly simpleton
 // test tree box
+// FoodScript -> atg?
+
 // <form> for vertexes
 // esc discards dummy vertex
 // doc click discards too
-// FoodScript -> atg?
 // relative positioning
 
 export function DecisionTree(props: { graph: Graph }) {

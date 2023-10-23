@@ -1,11 +1,9 @@
-export const randId = () =>
-  Array(8)
-    .fill(null)
-    .map(() => {
-      const offset = Math.floor(Math.random() * 36);
-      return String.fromCharCode(offset < 10 ? 48 + offset : 87 + offset);
-    })
-    .join('');
+import { init } from '@paralleldrive/cuid2';
+
+export const randId = init({
+  length: 8,
+  fingerprint: 'a-custom-host-fingerprint',
+});
 
 export function readable(camelCase: string) {
   return camelCase.replace(/([A-Z])/gu, (char) => ` ${char.toLowerCase()}`);

@@ -37,11 +37,14 @@
         background: white;
         border: 1px solid #aaa;
         border-radius: 3px;
-        cursor: pointer;
         font-size: 14px;
         height: 36px;
         margin-top: 2px;
         padding: 0 8px;
+      }
+
+      & select {
+        cursor: pointer;
       }
     }
   }

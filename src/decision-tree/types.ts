@@ -1,47 +1,21 @@
-import type { decisions } from '../simulation/constants';
-import type { Action } from '../types';
+import type { z } from 'zod';
+
+import type {
+  actionItemSchema,
+  agentTemplateSchema,
+  decisionItemSchema,
+  edgeItemSchema,
+  startItemSchema,
+} from './schema';
 
 export type AgentTree = [StartItem, ...(DecisionItem | ActionItem)[]];
 
-export interface TreeNode {
-  id: string;
-}
+export type AgentTemplate = z.infer<typeof agentTemplateSchema>;
 
-export interface AgentTemplate {
-  id: string;
-  name: string;
-  tree: AgentTree;
-}
+export type StartItem = z.infer<typeof startItemSchema>;
 
-export interface GraphItem {
-  id: string;
-  x: number;
-  y: number;
-}
+export type EdgeItem = z.infer<typeof edgeItemSchema>;
 
-export interface StartItem extends GraphItem {
-  type: 'start';
-  next: {
-    start: string | null;
-  };
-}
+export type DecisionItem = z.infer<typeof decisionItemSchema>;
 
-export interface DecisionItem extends GraphItem {
-  type: 'decision';
-  test: (typeof decisions)[number];
-  next: Record<string, string | null>;
-}
-
-export interface EdgeItem extends GraphItem {
-  type: 'edge';
-  from: string;
-  to: string;
-  key: string;
-  length: number;
-  rotation: number;
-}
-
-export interface ActionItem extends GraphItem {
-  type: 'action';
-  command: Action;
-}
+export type ActionItem = z.infer<typeof actionItemSchema>;

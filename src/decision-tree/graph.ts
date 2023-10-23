@@ -1,6 +1,7 @@
 import { agentService } from '../simulation/agents';
 import { actions, decisions } from '../simulation/constants';
-import type { AgentTree, DecisionItem, EdgeItem } from './types';
+import { agentTemplateSchema } from './schema';
+import type { AgentTemplate, AgentTree, DecisionItem, EdgeItem } from './types';
 import { randId } from './utils';
 
 export class Graph {
@@ -282,5 +283,32 @@ export class Graph {
       y: from.y + fromRect.height,
       rotation: (180 * Math.atan2(ty - fy, tx - fx)) / Math.PI,
     };
+  }
+
+  replace(agentDef: AgentTemplate) {
+    this.name = agentDef.name;
+    this.nodes = agentDef.tree;
+  }
+
+  toJSON() {
+    return JSON.stringify(
+      {
+        id: this.id,
+        name: this.name,
+        tree: this.nodes,
+      },
+      null,
+      4,
+    );
+  }
+
+  static fromJSON(json: string) {
+    try {
+      return agentTemplateSchema.parse(JSON.parse(json));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      return null;
+    }
   }
 }

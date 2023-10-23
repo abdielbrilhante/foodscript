@@ -9,7 +9,7 @@ export const startNode: StartItem = {
   next: { start: null },
 };
 
-export const SIMPLETON_ID = randId();
+export const SIMPLETON_ID = 't0l524jg';
 
 export const Simpleton = (): AgentTemplate => {
   const ids = Array(9).fill(null).map(randId);

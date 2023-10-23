@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import './agent-editor.css';
 
 import { agentService } from '../simulation/agents';
+import { SIMPLETON_ID } from '../simulation/dummy';
 import { DecisionTree } from './decision-tree';
+import { Graph } from './graph';
 import { useNodes } from './use-nodes';
 
 let agents = agentService.load();
@@ -14,6 +16,8 @@ export function AgentEditor(props: { switchScreen: () => void }) {
   const [adding, setAdding] = useState(!agents.length);
   const [agent, setAgent] = useState(agents[0]?.id ?? '');
   const [name, setName] = useState('');
+  const [exported, setExported] = useState(false);
+
   const graph = useNodes(agent);
 
   const onAddDecision = useCallback(() => {
@@ -40,6 +44,31 @@ export function AgentEditor(props: { switchScreen: () => void }) {
     agents = agentService.load();
     setAgent(agents[0]?.id ?? '');
   }, [agent]);
+
+  const onCopy = useCallback(async () => {
+    if (graph) {
+      setExported(true);
+      await navigator.clipboard.writeText(graph.toJSON());
+      setTimeout(() => {
+        setExported(false);
+      }, 1500);
+    }
+  }, [graph]);
+
+  const onPasteJSON = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const template = Graph.fromJSON(event.currentTarget.value);
+      if (template) {
+        const id = agentService.append(template);
+        agents = agentService.load();
+        setAgent(id);
+        setAdding(false);
+      } else {
+        event.preventDefault();
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!agent) {
@@ -69,6 +98,10 @@ export function AgentEditor(props: { switchScreen: () => void }) {
               <button type="button" disabled={!name} onClick={onAddNew}>
                 Save
               </button>
+              <label htmlFor="">
+                <div>Import decision tree</div>
+                <input onChange={onPasteJSON} placeholder="Paste JSON here" />
+              </label>
             </>
           ) : (
             <>
@@ -87,11 +120,14 @@ export function AgentEditor(props: { switchScreen: () => void }) {
                   ))}
                 </select>
               </label>
-              {agent !== '1' && (
+              {agent !== SIMPLETON_ID && (
                 <button type="button" onClick={onDeleteAgent}>
                   Delete
                 </button>
               )}
+              <button onClick={onCopy} disabled={adding || exported}>
+                {exported ? 'Copied!' : 'Copy as JSON'}
+              </button>
             </>
           )}
         </div>

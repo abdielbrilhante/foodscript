@@ -56,6 +56,15 @@ class AgentService {
     return id;
   }
 
+  append(template: AgentTemplate) {
+    if (this.agents().includes(template.id)) {
+      template.id = randId();
+    }
+
+    this.persist(template);
+    return template.id;
+  }
+
   delete(id: string) {
     LocalStorage.setItem(
       'agents',
