@@ -72,7 +72,7 @@ class AgentService {
         Array.from(new Set(this.agents().filter((_id) => _id !== id))),
       ),
     );
-    LocalStorage.removeItem(`${id}`);
+    LocalStorage.removeItem(id);
   }
 }
 

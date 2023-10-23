@@ -25,21 +25,29 @@ export class Graph {
     this.nodes = agentDef.tree;
   }
 
-  rerender() {
+  rerender(delayPersist = true) {
     this.check();
     this.trigger();
 
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-    }
+    if (delayPersist) {
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
 
-    this.timeout = setTimeout(() => {
+      this.timeout = setTimeout(() => {
+        agentService.persist({
+          id: this.id,
+          name: this.name,
+          tree: this.nodes,
+        });
+      }, 500);
+    } else {
       agentService.persist({
         id: this.id,
         name: this.name,
         tree: this.nodes,
       });
-    }, 500);
+    }
   }
 
   size() {
@@ -77,6 +85,11 @@ export class Graph {
     }
 
     return loops;
+  }
+
+  updateName(name: string) {
+    this.name = name;
+    this.rerender(false);
   }
 
   rebuildEdges = (id?: string) => {
