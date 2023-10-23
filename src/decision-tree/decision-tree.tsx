@@ -7,14 +7,15 @@ import { useDecisionTree } from './use-decision-tree';
 import { classes } from './utils';
 
 // TODO:
-// disallow connecting to perception node
+// copy JSON
+// import (validate) JSON
+// readonly simpleton
+// test tree box
 // <form> for vertexes
 // esc discards dummy vertex
 // doc click discards too
-
+// FoodScript -> atg?
 // relative positioning
-// copy JSON
-// import JSON
 
 export function DecisionTree(props: { graph: Graph }) {
   const { graph } = props;
@@ -58,54 +59,69 @@ export function DecisionTree(props: { graph: Graph }) {
         />
       ))}
 
-      {graph.nodes.map((node) => (
-        <div
-          key={node.id}
-          data-id={node.id}
-          onMouseDown={onNodePress}
-          onMouseUp={onNodeRelease}
-          onClick={onNodeClick}
-          onMouseEnter={onNodeHover}
-          onMouseLeave={onNodeHoverEnd}
-          className={classes(
-            'next' in node ? 'decision' : 'action',
-            selected === node.id && 'selected',
-            hovered === node.id && 'hovered',
-            graph.errors.loops.some((loop) => loop.includes(node.id)) &&
-              'invalid',
-          )}
-          style={{
-            left: `${node.x}px`,
-            top: `${node.y}px`,
-          }}
-        >
-          {'next' in node ? (
-            <DecisionNode
-              node={node}
-              selected={selected === node.id}
-              vertex={vertex}
-              onVertexClick={onVertexClick}
-              onDelete={onDelete}
-              onAddVertex={onAddVertex}
-              onSaveVertexes={onSaveVertexes}
-              onChangePerception={onUpdateChoice}
-            />
-          ) : 'start' in node ? (
-            <div data-id={node.id}>
-              Perception
-              <div className="vertexes">
-                <button className="vertex">Start</button>
-              </div>
+      {graph.nodes.map((node) =>
+        node.type === 'start' ? (
+          <div
+            key={node.id}
+            data-id={node.id}
+            onMouseDown={onNodePress}
+            onMouseUp={onNodeRelease}
+            onClick={onNodeClick}
+            className={classes('decision', selected === node.id && 'selected')}
+            style={{
+              left: `${node.x}px`,
+              top: `${node.y}px`,
+            }}
+          >
+            <div className="root-label">Perception</div>
+            <div className="vertexes">
+              <button className="vertex" onClick={onVertexClick}>
+                Start
+              </button>
             </div>
-          ) : (
-            <ActionNode
-              node={node}
-              onDelete={onDelete}
-              onChangeAction={onUpdateChoice}
-            />
-          )}
-        </div>
-      ))}
+          </div>
+        ) : (
+          <div
+            key={node.id}
+            data-id={node.id}
+            onMouseDown={onNodePress}
+            onMouseUp={onNodeRelease}
+            onClick={onNodeClick}
+            onMouseEnter={onNodeHover}
+            onMouseLeave={onNodeHoverEnd}
+            className={classes(
+              node.type,
+              selected === node.id && 'selected',
+              hovered === node.id && 'hovered',
+              graph.errors.loops.some((loop) => loop.includes(node.id)) &&
+                'invalid',
+            )}
+            style={{
+              left: `${node.x}px`,
+              top: `${node.y}px`,
+            }}
+          >
+            {node.type === 'decision' ? (
+              <DecisionNode
+                node={node}
+                selected={selected === node.id}
+                vertex={vertex}
+                onVertexClick={onVertexClick}
+                onDelete={onDelete}
+                onAddVertex={onAddVertex}
+                onSaveVertexes={onSaveVertexes}
+                onChangePerception={onUpdateChoice}
+              />
+            ) : (
+              <ActionNode
+                node={node}
+                onDelete={onDelete}
+                onChangeAction={onUpdateChoice}
+              />
+            )}
+          </div>
+        ),
+      )}
     </div>
   );
 }

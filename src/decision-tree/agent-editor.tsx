@@ -4,17 +4,9 @@ import './agent-editor.css';
 
 import { agentService } from '../simulation/agents';
 import { DecisionTree } from './decision-tree';
-import type { AgentDef } from './types';
 import { useNodes } from './use-nodes';
 
-function loadAgents() {
-  return agentService
-    .agents()
-    .map(agentService.parse)
-    .filter((item) => item != null) as AgentDef[];
-}
-
-let agents = loadAgents();
+let agents = agentService.load();
 
 export function AgentEditor(props: { switchScreen: () => void }) {
   const { switchScreen } = props;
@@ -38,14 +30,14 @@ export function AgentEditor(props: { switchScreen: () => void }) {
 
   const onAddNew = useCallback(() => {
     const id = agentService.create(name);
-    agents = loadAgents();
+    agents = agentService.load();
     setAgent(id);
     setAdding(false);
   }, [name]);
 
   const onDeleteAgent = useCallback(() => {
     agentService.delete(agent);
-    agents = loadAgents();
+    agents = agentService.load();
     setAgent(agents[0]?.id ?? '');
   }, [agent]);
 
@@ -104,8 +96,12 @@ export function AgentEditor(props: { switchScreen: () => void }) {
           )}
         </div>
         <div className="action-set">
-          <button onClick={onAddDecision}>Add decision</button>
-          <button onClick={onAddAction}>Add action</button>
+          <button disabled={adding} onClick={onAddDecision}>
+            Add decision
+          </button>
+          <button disabled={adding} onClick={onAddAction}>
+            Add action
+          </button>
           <button className="switch-screen" onClick={switchScreen}>
             Go to simulation
           </button>

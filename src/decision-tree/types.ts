@@ -1,13 +1,13 @@
 import type { decisions } from '../simulation/constants';
 import type { Action } from '../types';
 
-export type AgentTree = (DecisionItem | ActionItem)[];
+export type AgentTree = [StartItem, ...(DecisionItem | ActionItem)[]];
 
 export interface TreeNode {
   id: string;
 }
 
-export interface AgentDef {
+export interface AgentTemplate {
   id: string;
   name: string;
   tree: AgentTree;
@@ -19,12 +19,21 @@ export interface GraphItem {
   y: number;
 }
 
+export interface StartItem extends GraphItem {
+  type: 'start';
+  next: {
+    start: string | null;
+  };
+}
+
 export interface DecisionItem extends GraphItem {
-  test: (typeof decisions)[number] | null;
-  next: Record<string, string>;
+  type: 'decision';
+  test: (typeof decisions)[number];
+  next: Record<string, string | null>;
 }
 
 export interface EdgeItem extends GraphItem {
+  type: 'edge';
   from: string;
   to: string;
   key: string;
@@ -33,5 +42,6 @@ export interface EdgeItem extends GraphItem {
 }
 
 export interface ActionItem extends GraphItem {
+  type: 'action';
   command: Action;
 }

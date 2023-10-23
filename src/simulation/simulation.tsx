@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import './simulation.css';
 
-import * as agents from '../agents';
 import { LocalStorage } from '../shared/local-storage';
+import { agentService } from './agents';
 import { Game } from './game';
 
 export function Simulation(props: { switchScreen: () => void }) {
   const { switchScreen } = props;
+
+  const agents = useMemo(() => agentService.load(), []);
 
   const [game, setGame] = useState<Game>();
   const [running, setRunning] = useState(false);
@@ -49,10 +51,7 @@ export function Simulation(props: { switchScreen: () => void }) {
         goldDensity: Number(form.get('goldDensity')),
         maxCarries: Number(form.get('maxCarries')),
         maxRuns: Number(form.get('maxRuns')),
-        agents: [
-          agents[form.get('red') as keyof typeof agents],
-          agents[form.get('blue') as keyof typeof agents],
-        ],
+        agents: [form.get('red') as string, form.get('blue') as string],
       });
     });
   }
@@ -79,9 +78,9 @@ export function Simulation(props: { switchScreen: () => void }) {
           <label htmlFor="red">
             <div>Red agent</div>
             <select {...inputProps('red')} data-readonly={running}>
-              {Object.keys(agents).map((agent) => (
-                <option key={agent} value={agent}>
-                  {agent}
+              {agents.map((agent) => (
+                <option key={agent.id} value={agent.id}>
+                  {agent.name}
                 </option>
               ))}
             </select>
@@ -89,9 +88,9 @@ export function Simulation(props: { switchScreen: () => void }) {
           <label htmlFor="blue">
             <div>Blue agent</div>
             <select {...inputProps('blue')} data-readonly={running}>
-              {Object.keys(agents).map((agent) => (
-                <option key={agent} value={agent}>
-                  {agent}
+              {agents.map((agent) => (
+                <option key={agent.id} value={agent.id}>
+                  {agent.name}
                 </option>
               ))}
             </select>

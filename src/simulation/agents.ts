@@ -1,7 +1,7 @@
-import type { AgentDef } from '../decision-tree/types';
+import type { AgentTemplate } from '../decision-tree/types';
 import { randId } from '../decision-tree/utils';
 import { LocalStorage } from '../shared/local-storage';
-import { Simpleton, startNode } from './dummy';
+import { SIMPLETON_ID, Simpleton, startNode } from './dummy';
 
 function json<T>(content: string | null, fallback: T) {
   if (content == null) {
@@ -18,20 +18,26 @@ function json<T>(content: string | null, fallback: T) {
 class AgentService {
   constructor() {
     if (!LocalStorage.getItem('agents')) {
-      LocalStorage.setItem('agents', JSON.stringify([Simpleton.id]));
-      this.persist(Simpleton);
+      LocalStorage.setItem('agents', JSON.stringify([SIMPLETON_ID]));
+      this.persist(Simpleton());
     }
   }
 
   agents() {
-    return json(LocalStorage.getItem('agents'), [Simpleton.id]);
+    return json(LocalStorage.getItem('agents'), [SIMPLETON_ID]);
+  }
+
+  load() {
+    return this.agents()
+      .map(this.parse)
+      .filter((item) => item != null) as AgentTemplate[];
   }
 
   parse = (id: string) => {
-    return json<AgentDef | null>(LocalStorage.getItem(id), null);
+    return json<AgentTemplate | null>(LocalStorage.getItem(id), null);
   };
 
-  persist(agentDef: AgentDef) {
+  persist(agentDef: AgentTemplate) {
     LocalStorage.setItem(
       'agents',
       JSON.stringify(Array.from(new Set(this.agents().concat(agentDef.id)))),

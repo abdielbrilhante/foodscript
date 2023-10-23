@@ -1,5 +1,4 @@
 import type {
-  AgentFunction,
   Cell,
   Processor,
   Team,
@@ -7,6 +6,7 @@ import type {
   GoldNugget,
   Position,
 } from '../types';
+import { agentService } from './agents';
 import * as placement from './placement';
 import { actionProcessor } from './processors/action';
 import { carryingProcessor } from './processors/carrying';
@@ -54,7 +54,7 @@ export class Game {
     goldDensity: number;
     maxRuns: number;
     maxCarries: number;
-    agents: [AgentFunction, AgentFunction];
+    agents: [string, string];
     placement: string;
     fps: number;
   }) {
@@ -65,7 +65,7 @@ export class Game {
     this.maxCarries = config.maxCarries;
     this.rows = config.rows;
     this.columns = Math.round(
-      (window.innerWidth / (window.innerHeight - 150)) * this.rows,
+      (window.innerWidth / (window.innerHeight - 100)) * this.rows,
     );
 
     this.arena = Array(this.columns)
@@ -127,7 +127,9 @@ export class Game {
     this.nuggetCursor += 1;
   }
 
-  private addAgent(agentFunction: AgentFunction, team: Team) {
+  private addAgent(agentId: string, team: Team) {
+    const template = agentService.parse(agentId)!;
+
     const randPosition = () => ({
       ...placement[this.placement](this.rows, this.columns, team),
       d: Math.floor(Math.random() * 4),
@@ -142,13 +144,12 @@ export class Game {
     this.arena[position.x][position.y].agentId = this.agentCursor;
     this.agents[this.agentCursor] = {
       id: this.agentCursor,
-      class: agentFunction.name,
+      class: template.name,
       team: team,
-      reason: agentFunction,
+      decisionTree: template.tree,
       trunk: null,
       action: null,
       position: position,
-      state: {},
     };
 
     this.agentCursor += 1;
@@ -161,7 +162,7 @@ export class Game {
     );
   }
 
-  addAgents(red: AgentFunction, blue: AgentFunction) {
+  addAgents(red: string, blue: string) {
     for (let i = 0; i < this.numAgents / 2; i += 1) {
       this.addAgent(red, 'red');
       this.addAgent(blue, 'blue');

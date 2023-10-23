@@ -1,3 +1,4 @@
+import type { AgentTemplate } from './decision-tree/types';
 import type { Game } from './simulation/game';
 
 export type Cell = {
@@ -8,9 +9,8 @@ export type Cell = {
 
 export interface Agent {
   id: number;
-  reason: AgentFunction;
+  decisionTree: AgentTemplate['tree'];
   action: Action | null;
-  state: Record<string, unknown>;
   position: Position;
   trunk: { nuggetId: number; runs: number } | null;
   class: string;
@@ -48,11 +48,6 @@ export interface Perception {
 }
 
 export type Action = 'turnLeft' | 'turnRight' | 'move' | 'pickUp' | 'drop';
-
-export type AgentFunction = (
-  perception: Perception,
-  state: Record<string, unknown>,
-) => Action | null;
 
 export type AgentExtractor = (x: number, y: number) => Agent | null;
 

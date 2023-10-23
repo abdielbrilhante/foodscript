@@ -35,40 +35,32 @@ export function DecisionNode(props: {
 
   return (
     <>
-      {node.test ? (
-        <label htmlFor={`perception__${node.id}`}>
-          <select
-            id={`perception__${node.id}`}
-            value={node.test}
-            onChange={onChangePerception}
-          >
-            {decisions.map((perception) => (
-              <option key={perception} value={perception}>
-                {readable(perception)}
-              </option>
-            ))}
-          </select>
-          <span className="arrow" />
-        </label>
-      ) : (
-        <div className="root-label">Perception</div>
-      )}
-
-      {node.test != null && (
-        <button type="button" className="delete config" onClick={onDelete}>
-          ×
-        </button>
-      )}
-
-      {node.test != null && (
-        <button
-          type="button"
-          className="edit config"
-          onClick={edit ? onSaveVertexes : () => setEdit(true)}
+      <label htmlFor={`perception__${node.id}`}>
+        <select
+          id={`perception__${node.id}`}
+          value={node.test}
+          onChange={onChangePerception}
         >
-          {edit ? 'Ok' : 'Edit'}
-        </button>
-      )}
+          {decisions.map((perception) => (
+            <option key={perception} value={perception}>
+              {readable(perception)}
+            </option>
+          ))}
+        </select>
+        <span className="arrow" />
+      </label>
+
+      <button type="button" className="delete config" onClick={onDelete}>
+        ×
+      </button>
+
+      <button
+        type="button"
+        className="edit config"
+        onClick={edit ? onSaveVertexes : () => setEdit(true)}
+      >
+        {edit ? 'Ok' : 'Edit'}
+      </button>
 
       {edit && (
         <button type="button" className="add config" onClick={onAddVertex}>

@@ -1,6 +1,75 @@
-import type { PerceptionItem, Perception, Processor, Team } from '../../types';
+import type {
+  AgentTemplate,
+  DecisionItem,
+  StartItem,
+} from '../../decision-tree/types';
+import type {
+  PerceptionItem,
+  Perception,
+  Processor,
+  Team,
+  Action,
+} from '../../types';
 import type { Game } from '../game';
 import { relativeCell } from '../utils';
+
+const BOOLEAN_STRINGS: Record<string, boolean> = { yes: true, no: false };
+const CATCHALL_STRING = '*';
+
+function decide(perception: Perception, decisionTree: AgentTemplate['tree']) {
+  let node = decisionTree.find((node) => node.type === 'start');
+
+  let action: Action | null | undefined = undefined;
+  while (action === undefined) {
+    if (!node) {
+      action = null;
+    } else if (node.type === 'start') {
+      node = decisionTree.find(
+        (item) => item.id === (node as StartItem).next.start,
+      );
+    } else if (node.type === 'action') {
+      action = node.command;
+    } else {
+      let match: string | undefined;
+      const matches = Object.keys(node.next).sort((l, r) =>
+        l === CATCHALL_STRING ? 1 : r === CATCHALL_STRING ? -1 : 0,
+      );
+
+      if (node.test === 'random %') {
+        const value = Math.floor(Math.random() * 100);
+        const values = matches.map((percent) =>
+          Number(percent.replace(/%$/u, '')),
+        );
+        let sum = 0;
+        match = matches.find((_, i) => {
+          sum += values[i];
+          return value < sum;
+        });
+      } else {
+        const value = perception[node.test];
+        match = matches.find((key) => {
+          if (typeof value === 'boolean') {
+            return BOOLEAN_STRINGS[key] === value;
+          } else if (typeof value === 'number') {
+            return Number(key) === value;
+          } else {
+            return key === '*' || key === value;
+          }
+        });
+      }
+
+      if (match != null) {
+        node = decisionTree.find(
+          (item) => item.id === (node as DecisionItem).next[match!],
+        );
+      } else {
+        action = null;
+      }
+    }
+  }
+
+  return action;
+}
 
 export const reasoningProcessor: Processor = (game: Game) => {
   function cellState(x: number, y: number, team: Team | null): PerceptionItem {
@@ -18,7 +87,7 @@ export const reasoningProcessor: Processor = (game: Game) => {
   }
 
   for (const agent of game.agents) {
-    const { position, team, reason } = agent;
+    const { position, team, decisionTree } = agent;
     const { x, y } = position;
 
     const perception: Perception = {
@@ -37,6 +106,6 @@ export const reasoningProcessor: Processor = (game: Game) => {
       right: cellState(...relativeCell(position, 2), team),
     };
 
-    agent.action = reason(perception, agent.state);
+    agent.action = decide(perception, decisionTree);
   }
 };

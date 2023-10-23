@@ -1,7 +1,11 @@
 export const randId = () =>
-  String(Math.random() * +new Date())
-    .replace('.', '')
-    .substring(1, 9);
+  Array(8)
+    .fill(null)
+    .map(() => {
+      const offset = Math.floor(Math.random() * 36);
+      return String.fromCharCode(offset < 10 ? 48 + offset : 87 + offset);
+    })
+    .join('');
 
 export function readable(camelCase: string) {
   return camelCase.replace(/([A-Z])/gu, (char) => ` ${char.toLowerCase()}`);

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { decisions } from '../simulation/constants';
 import type { Action } from '../types';
 import type { Graph } from './graph';
-import type { DecisionItem } from './types';
+import type { ActionItem, DecisionItem } from './types';
 import { useMouseMove } from './use-mouse-move';
 
 export function useDecisionTree(graph: Graph) {
@@ -152,8 +152,8 @@ export function useDecisionTree(graph: Graph) {
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       const value = event.currentTarget.value;
       const id = event.currentTarget.id.split('__').pop()!;
-      const node = graph.findNodeById(id)!;
-      if ('test' in node) {
+      const node = graph.findNodeById(id) as DecisionItem | ActionItem;
+      if (node.type === 'decision') {
         node.test = value as (typeof decisions)[number];
       } else {
         node.command = value as Action;
@@ -166,7 +166,11 @@ export function useDecisionTree(graph: Graph) {
   useEffect(() => {
     function onDocumentClick(event: MouseEvent) {
       const active = document.querySelector('.selected');
-      if (active && !active.contains(event.target as HTMLElement)) {
+      if (
+        active &&
+        (!active.contains(event.target as HTMLElement) ||
+          active.getAttribute('data-id') === graph.nodes[0].id)
+      ) {
         mouseMove.unwatch();
         graph.updateNodes();
         setSelected(null);

@@ -57,16 +57,12 @@ export class Graph {
   }
 
   check() {
-    const root = this.nodes.find(
-      (node) => 'next' in node && node.test == null,
-    )!;
-
-    this.errors.loops = this.visit(root.id);
+    this.errors.loops = this.visit(this.nodes[0].id);
   }
 
-  visit(id: string, paths: string[] = [], loops: string[][] = []) {
+  visit(id: string | null, paths: string[] = [], loops: string[][] = []) {
     const node = this.findNodeById(id);
-    if (node && 'next' in node) {
+    if (id && node && node.type === 'decision') {
       if (paths.includes(id)) {
         paths.push(id);
         loops.push(paths);
@@ -90,6 +86,7 @@ export class Graph {
         ? current[0]
         : {
             id: randId(),
+            type: 'edge',
             from: '',
             to: '',
             key: '',
@@ -101,7 +98,7 @@ export class Graph {
     ];
 
     for (const node of this.nodes) {
-      if ('next' in node) {
+      if (node.type === 'decision' || node.type === 'start') {
         for (const [key, to] of Object.entries(node.next)) {
           if (id && node.id !== id && to !== id) {
             const stable = current.find(
@@ -123,6 +120,7 @@ export class Graph {
           if (position) {
             this.edges.push({
               id: randId(),
+              type: 'edge',
               ...position,
             });
           }
@@ -131,7 +129,7 @@ export class Graph {
     }
   };
 
-  findNodeById(id?: string | null) {
+  findNodeById(id: string | null) {
     return this.nodes.find((node) => node.id === id);
   }
 
@@ -139,6 +137,7 @@ export class Graph {
     const id = randId();
     this.nodes.push({
       id: id,
+      type: 'decision',
       next: {
         '<1>': '',
         '<2>': '',
@@ -154,6 +153,7 @@ export class Graph {
     const id = randId();
     this.nodes.push({
       id: id,
+      type: 'action',
       command: actions[0],
       x: 0,
       y: 0,
@@ -164,7 +164,7 @@ export class Graph {
   updateNode(id: string) {
     this.nodes = this.nodes.map((node) => {
       return id === node.id ? { ...node } : node;
-    });
+    }) as AgentTree;
 
     this.rebuildEdges(id);
     this.rerender();
@@ -185,23 +185,23 @@ export class Graph {
 
   deleteNode = (id: string) => {
     for (const node of this.nodes) {
-      if ('next' in node) {
+      if (node.type === 'decision') {
         for (const [key, value] of Object.entries(node.next)) {
           if (value === id) {
-            delete node.next[key];
+            node.next[key] = null;
           }
         }
       }
     }
 
-    this.nodes = this.nodes.filter((node) => node.id !== id);
+    this.nodes = this.nodes.filter((node) => node.id !== id) as AgentTree;
     this.rebuildEdges(id);
     this.rerender();
   };
 
   updateVertexes = (id: string, keys: string[]) => {
     const node = this.findNodeById(id) as DecisionItem;
-    const updated: Record<string, string> = {};
+    const updated: Record<string, string | null> = {};
     for (const [index, key] of keys.entries()) {
       updated[key] = Object.values(node.next)[index];
     }
@@ -244,7 +244,7 @@ export class Graph {
     };
   }
 
-  computeEdgePosition(edge: { from: string; to: string; key: string }) {
+  computeEdgePosition(edge: { from: string; to: string | null; key: string }) {
     const { from: fromId, key, to: toId } = edge;
     const from = this.findNodeById(fromId) as DecisionItem;
     const to = this.findNodeById(toId);
@@ -276,6 +276,7 @@ export class Graph {
 
     return {
       ...edge,
+      to: edge.to!,
       length: edgeLength,
       x: fx,
       y: from.y + fromRect.height,
