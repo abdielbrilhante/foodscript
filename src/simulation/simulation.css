@@ -49,7 +49,7 @@ canvas {
   > .stats {
     align-items: center;
     display: flex;
-    gap: 12px;
+    gap: 8px;
 
     > span {
       font-size: 13px;

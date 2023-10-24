@@ -34,6 +34,16 @@ button {
     color: #fff;
   }
 
+  &.info {
+    background: #222;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 18px;
+    padding: 0;
+    width: 36px;
+  }
+
   &:hover {
     text-decoration: underline;
   }

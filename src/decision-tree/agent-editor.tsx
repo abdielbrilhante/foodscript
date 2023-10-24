@@ -11,8 +11,11 @@ import { useNodes } from './use-nodes';
 
 let agents = agentService.load();
 
-export function AgentEditor(props: { switchScreen: () => void }) {
-  const { switchScreen } = props;
+export function AgentEditor(props: {
+  switchScreen: () => void;
+  openHelp: () => void;
+}) {
+  const { switchScreen, openHelp } = props;
 
   const [agent, setAgent] = useState(
     () => LocalStorage.getItem('edit') ?? agents[0]?.id ?? '',
@@ -172,6 +175,9 @@ export function AgentEditor(props: { switchScreen: () => void }) {
           </button>
           <button className="switch-screen" onClick={switchScreen}>
             Go to simulation
+          </button>
+          <button className="info" onClick={openHelp}>
+            ?
           </button>
         </div>
       </div>

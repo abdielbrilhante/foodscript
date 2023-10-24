@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 
 import { AgentEditor } from './decision-tree/agent-editor';
+import { Help } from './help/help';
 import { LocalStorage } from './shared/local-storage';
 import { Simulation } from './simulation/simulation';
 
 export function App() {
+  const [help, setHelp] = useState(() => !LocalStorage.getItem('helpSeen'));
+
   const [screen, setScreen] = useState<'editor' | 'simulation'>(
     (LocalStorage.getItem('screen') || 'simulation') as 'editor' | 'simulation',
   );
@@ -17,13 +20,20 @@ export function App() {
     });
   }, []);
 
+  const openHelp = useCallback(() => {
+    setHelp(true);
+    LocalStorage.setItem('helpSeen', 'true');
+  }, []);
+
   return (
     <main>
       {screen === 'editor' ? (
-        <AgentEditor switchScreen={switchScreen} />
+        <AgentEditor switchScreen={switchScreen} openHelp={openHelp} />
       ) : (
-        <Simulation switchScreen={switchScreen} />
+        <Simulation switchScreen={switchScreen} openHelp={openHelp} />
       )}
+
+      {help ? <Help close={() => setHelp(false)} /> : null}
     </main>
   );
 }

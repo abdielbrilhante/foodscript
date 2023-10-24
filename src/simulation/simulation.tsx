@@ -6,8 +6,11 @@ import { LocalStorage } from '../shared/local-storage';
 import { agentService } from './agents';
 import { Game } from './game';
 
-export function Simulation(props: { switchScreen: () => void }) {
-  const { switchScreen } = props;
+export function Simulation(props: {
+  switchScreen: () => void;
+  openHelp: () => void;
+}) {
+  const { switchScreen, openHelp } = props;
 
   const agents = useMemo(() => agentService.load(), []);
 
@@ -188,6 +191,9 @@ export function Simulation(props: { switchScreen: () => void }) {
           </div>
           <button className="switch-screen" onClick={switchScreen}>
             Go to editor
+          </button>
+          <button className="info" onClick={openHelp}>
+            ?
           </button>
         </div>
       </div>
