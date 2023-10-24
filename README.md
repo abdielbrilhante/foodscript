@@ -1,4 +1,4 @@
-# FoodScript
+# Golden Grid
 
 Simple TypeScript programming/simulation game.
 
