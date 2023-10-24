@@ -7,12 +7,9 @@ import { useDecisionTree } from './use-decision-tree';
 import { classes } from './utils';
 
 // TODO:
-// Docs modal
-// smaller nodes
-// stop before going to editor
 // test tree box
+// stop before going to editor
 // readonly simpleton
-// FoodScript -> atg?
 
 // <form> for vertexes
 // esc discards dummy vertex

@@ -22,7 +22,6 @@ export function App() {
 
   const openHelp = useCallback(() => {
     setHelp(true);
-    LocalStorage.setItem('helpSeen', 'true');
   }, []);
 
   return (

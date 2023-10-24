@@ -65,6 +65,18 @@ export function AgentEditor(props: {
     setAgent(agents[0]?.id ?? '');
   }, [agent]);
 
+  const onClone = useCallback(async () => {
+    if (graph) {
+      const template = agents.find((item) => item.id === agent)!;
+      const id = agentService.append({
+        ...template,
+        name: `${template.name} (clone)`,
+      });
+      agents = agentService.load();
+      setAgent(id);
+    }
+  }, [graph, agent]);
+
   const onCopy = useCallback(async () => {
     if (graph) {
       setExported(true);
@@ -160,6 +172,9 @@ export function AgentEditor(props: {
                   </button>
                 </>
               )}
+              <button onClick={onClone} disabled={!agent}>
+                Clone
+              </button>
               <button onClick={onCopy} disabled={!agent || exported}>
                 {exported ? 'Copied!' : 'Copy as JSON'}
               </button>

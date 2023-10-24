@@ -8,7 +8,7 @@
   & .decision {
     flex-direction: column;
     position: absolute;
-    width: 160px;
+    width: 140px;
 
     &.invalid {
       background: #ffe6e5;
@@ -19,8 +19,8 @@
       align-items: center;
       background: #ddd;
       display: flex;
-      font-size: 14px;
-      height: 32px;
+      font-size: 13px;
+      height: 26px;
       justify-content: center;
       pointer-events: none;
       width: 100%;
@@ -40,13 +40,12 @@
         cursor: move;
         display: flex;
         flex: 1;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 500;
-        height: 24px;
+        height: 18px;
         justify-content: center;
         padding: 0;
         pointer-events: none;
-        width: 36px;
 
         &.invalid {
           background: #eee;
@@ -92,7 +91,7 @@
     box-shadow: 0 3px 6px -3px rgba(0, 0, 0, 0.25);
 
     & label {
-      height: 32px;
+      height: 26px;
       pointer-events: none;
       position: relative;
       width: 100%;
@@ -108,7 +107,7 @@
         content: '▾';
         font-size: 16px;
         position: absolute;
-        right: 8px;
+        right: 4px;
         top: 50%;
         transform: translateY(calc(-50% - 1px));
       }
@@ -118,7 +117,7 @@
       background: transparent;
       border-radius: 0;
       border: none;
-      font-size: 14px;
+      font-size: 13px;
       height: 100%;
       padding: 0 8px;
       pointer-events: none;
