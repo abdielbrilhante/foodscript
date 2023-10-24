@@ -24,27 +24,37 @@
       justify-content: space-between;
       gap: 8px;
     }
+  }
 
-    & label {
-      > div {
-        color: #555;
-        font-size: 12px;
-        font-weight: 600;
+  & .dry-run-container {
+    bottom: 48px;
+    right: 48px;
+    position: absolute;
+    z-index: 1;
+
+    & .dry-run {
+      background: #fff;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      padding: 12px;
+      width: 250px;
+
+      & label {
+        width: 100%;
       }
 
-      & select,
-      & input {
-        background: white;
-        border: 1px solid #aaa;
-        border-radius: 3px;
-        font-size: 14px;
-        height: 36px;
-        margin-top: 2px;
-        padding: 0 8px;
-      }
+      & .row {
+        align-items: center;
+        display: flex;
+        gap: 12px;
 
-      & select {
-        cursor: pointer;
+        &:not(:first-of-type) {
+          margin-top: 12px;
+        }
+
+        > * {
+          flex: 1;
+        }
       }
     }
   }

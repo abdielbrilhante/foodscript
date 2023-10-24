@@ -10,6 +10,7 @@ export class Graph {
   name: string;
   nodes: AgentTree;
   edges: EdgeItem[] = [];
+  highlight: string[] = [];
   errors: {
     loops: string[][];
   } = {
@@ -173,6 +174,11 @@ export class Graph {
       y: 0,
     });
     this.updateNode(id);
+  }
+
+  setHighlight(ids: string[]) {
+    this.highlight = ids;
+    this.rerender();
   }
 
   updateNode(id: string) {

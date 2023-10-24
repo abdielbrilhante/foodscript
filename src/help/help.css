@@ -29,7 +29,7 @@
         margin: 0;
       }
 
-      button {
+      & button {
         background: none;
         border: none;
         height: 24px;

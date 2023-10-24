@@ -189,10 +189,14 @@ export function Simulation(props: {
             <span className="gold">0</span>
             <span className="blue">0</span>
           </div>
-          <button className="switch-screen" onClick={switchScreen}>
+          <button
+            type="button"
+            className="switch-screen"
+            onClick={switchScreen}
+          >
             Go to editor
           </button>
-          <button className="info" onClick={openHelp}>
+          <button type="button" className="info" onClick={openHelp}>
             ?
           </button>
         </div>

@@ -41,9 +41,9 @@ export interface Perception {
   isInTerminal: boolean;
   center: PerceptionItem;
   ahead: PerceptionItem;
-  slightLeft: PerceptionItem;
+  centerLeft: PerceptionItem;
   left: PerceptionItem;
-  slightRight: PerceptionItem;
+  centerRight: PerceptionItem;
   right: PerceptionItem;
 }
 

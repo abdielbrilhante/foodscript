@@ -1,15 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
-
 import './agent-editor.css';
 
-import { LocalStorage } from '../shared/local-storage';
-import { agentService } from '../simulation/agents';
 import { SIMPLETON_ID } from '../simulation/dummy';
 import { DecisionTree } from './decision-tree';
-import { Graph } from './graph';
-import { useNodes } from './use-nodes';
-
-let agents = agentService.load();
+import { DryRun } from './dry-run';
+import { useAgentEditor } from './use-agent-editor';
 
 export function AgentEditor(props: {
   switchScreen: () => void;
@@ -17,101 +11,23 @@ export function AgentEditor(props: {
 }) {
   const { switchScreen, openHelp } = props;
 
-  const [agent, setAgent] = useState(
-    () => LocalStorage.getItem('edit') ?? agents[0]?.id ?? '',
-  );
-  const [name, setName] = useState('');
-  const [exported, setExported] = useState(false);
-  const [renaming, setRenaming] = useState(false);
-
-  const graph = useNodes(agent);
-
-  const onAddDecision = useCallback(() => {
-    if (graph) {
-      graph.addDecisionNode();
-    }
-  }, [graph]);
-
-  const onAddAction = useCallback(() => {
-    if (graph) {
-      graph.addActionNode();
-    }
-  }, [graph]);
-
-  const onAddNew = useCallback(() => {
-    const id = agentService.create(name);
-    agents = agentService.load();
-    setAgent(id);
-  }, [name]);
-
-  const onRename = useCallback(() => {
-    if (renaming && graph) {
-      if (graph) {
-        graph.updateName(name);
-      }
-
-      agents = agentService.load();
-      setName('');
-      setRenaming(false);
-    } else {
-      setName(agents.find((item) => item.id === agent)?.name ?? '');
-      setRenaming((value) => !value);
-    }
-  }, [renaming, graph, name, agent]);
-
-  const onDeleteAgent = useCallback(() => {
-    agentService.delete(agent);
-    agents = agentService.load();
-    setAgent(agents[0]?.id ?? '');
-  }, [agent]);
-
-  const onClone = useCallback(async () => {
-    if (graph) {
-      const template = agents.find((item) => item.id === agent)!;
-      const id = agentService.append({
-        ...template,
-        name: `${template.name} (clone)`,
-      });
-      agents = agentService.load();
-      setAgent(id);
-    }
-  }, [graph, agent]);
-
-  const onCopy = useCallback(async () => {
-    if (graph) {
-      setExported(true);
-      await navigator.clipboard.writeText(graph.toJSON());
-      setTimeout(() => {
-        setExported(false);
-      }, 1500);
-    }
-  }, [graph]);
-
-  const onPasteJSON = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const template = Graph.fromJSON(event.currentTarget.value);
-      if (template) {
-        const id = agentService.append(template);
-        agents = agentService.load();
-        setAgent(id);
-      } else {
-        event.preventDefault();
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    if (!agent) {
-      setName('');
-    }
-
-    LocalStorage.setItem('edit', agent);
-  }, [agent]);
+  const { state, setters, events } = useAgentEditor();
+  const { agent, agents, name, renaming, graph, exported, dryRun } = state;
+  const {
+    onPasteJSON,
+    onAddNew,
+    onRename,
+    onDeleteAgent,
+    onClone,
+    onCopy,
+    onAddDecision,
+    onAddAction,
+  } = events;
+  const { setName, setAgent, setDryRun } = setters;
 
   return (
     <div className="agent-editor">
-      <div className="editor-actions">
+      <form className="editor-actions">
         <div className="action-set">
           <label htmlFor="agent">
             <div>Agent</div>
@@ -172,33 +88,53 @@ export function AgentEditor(props: {
                   </button>
                 </>
               )}
-              <button onClick={onClone} disabled={!agent}>
+              <button type="button" onClick={onClone} disabled={!agent}>
                 Clone
               </button>
-              <button onClick={onCopy} disabled={!agent || exported}>
+              <button
+                type="button"
+                onClick={onCopy}
+                disabled={!agent || exported}
+              >
                 {exported ? 'Copied!' : 'Copy as JSON'}
               </button>
             </>
           )}
         </div>
         <div className="action-set">
-          <button disabled={!agent} onClick={onAddDecision}>
+          <button type="button" disabled={!agent} onClick={onAddDecision}>
             Add decision
           </button>
-          <button disabled={!agent} onClick={onAddAction}>
+          <button type="button" disabled={!agent} onClick={onAddAction}>
             Add action
           </button>
-          <button className="switch-screen" onClick={switchScreen}>
+          <button
+            type="button"
+            className="switch-screen"
+            onClick={switchScreen}
+          >
             Go to simulation
           </button>
-          <button className="info" onClick={openHelp}>
+          <button type="button" className="info" onClick={openHelp}>
             ?
           </button>
         </div>
-      </div>
+      </form>
       <div className="decision-tree-container">
         {graph ? <DecisionTree graph={graph} /> : null}
       </div>
+
+      {graph ? (
+        <div className="dry-run-container">
+          {dryRun ? (
+            <DryRun graph={graph} collapse={() => setDryRun(false)} />
+          ) : (
+            <button type="button" onClick={() => setDryRun(true)}>
+              Test decision tree
+            </button>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

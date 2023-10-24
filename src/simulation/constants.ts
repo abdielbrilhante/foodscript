@@ -5,9 +5,9 @@ export const decisions = [
   'direction',
   'center',
   'ahead',
-  'slightLeft',
+  'centerLeft',
   'left',
-  'slightRight',
+  'centerRight',
   'right',
   'random %',
 ] as const;

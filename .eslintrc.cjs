@@ -5,7 +5,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
-    'plugin:react-hooks/recommended'
+    'plugin:react-hooks/recommended',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
@@ -17,6 +17,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'off',
     'no-console': 'error',
     'no-control-regex': 'off',
+    'react/button-has-type': 'error',
     'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
     'react-refresh/only-export-components': 'warn',

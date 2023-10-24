@@ -16,8 +16,12 @@ import { relativeCell } from '../utils';
 const BOOLEAN_STRINGS: Record<string, boolean> = { yes: true, no: false };
 const CATCHALL_STRING = '*';
 
-function decide(perception: Perception, decisionTree: AgentTemplate['tree']) {
+export function decide(
+  perception: Perception,
+  decisionTree: AgentTemplate['tree'],
+) {
   let node = decisionTree.find((node) => node.type === 'start');
+  const path = [node];
 
   let action: Action | null | undefined = undefined;
   while (action === undefined) {
@@ -27,6 +31,7 @@ function decide(perception: Perception, decisionTree: AgentTemplate['tree']) {
       node = decisionTree.find(
         (item) => item.id === (node as StartItem).next.start,
       );
+      path.push(node);
     } else if (node.type === 'action') {
       action = node.command;
     } else {
@@ -47,7 +52,8 @@ function decide(perception: Perception, decisionTree: AgentTemplate['tree']) {
         });
       } else {
         const value = perception[node.test];
-        match = matches.find((key) => {
+        match = matches.find((_key) => {
+          const key = _key.toLowerCase();
           if (typeof value === 'boolean') {
             return BOOLEAN_STRINGS[key] === value;
           } else if (typeof value === 'number') {
@@ -62,13 +68,19 @@ function decide(perception: Perception, decisionTree: AgentTemplate['tree']) {
         node = decisionTree.find(
           (item) => item.id === (node as DecisionItem).next[match!],
         );
+        path.push(node);
       } else {
         action = null;
       }
     }
   }
 
-  return action;
+  return {
+    action,
+    path: path
+      .map((node) => node?.id)
+      .filter((node) => node != null) as string[],
+  };
 }
 
 export const reasoningProcessor: Processor = (game: Game) => {
@@ -100,12 +112,12 @@ export const reasoningProcessor: Processor = (game: Game) => {
       ],
       center: cellState(x, y, null),
       ahead: cellState(...relativeCell(position, 0), team),
-      slightLeft: cellState(...relativeCell(position, -1), team),
+      centerLeft: cellState(...relativeCell(position, -1), team),
       left: cellState(...relativeCell(position, -2), team),
-      slightRight: cellState(...relativeCell(position, 1), team),
+      centerRight: cellState(...relativeCell(position, 1), team),
       right: cellState(...relativeCell(position, 2), team),
     };
 
-    agent.action = decide(perception, decisionTree);
+    agent.action = decide(perception, decisionTree).action;
   }
 };

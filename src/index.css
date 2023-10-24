@@ -48,3 +48,36 @@ button {
     text-decoration: underline;
   }
 }
+
+form {
+  & label {
+    display: block;
+
+    & div {
+      color: #555;
+      font-size: 12px;
+      font-weight: 600;
+      height: 16px;
+    }
+
+    & input,
+    select {
+      background: white;
+      border: 1px solid #aaa;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      height: 36px;
+      margin-top: 2px;
+      padding: 0 8px;
+      width: 100%;
+    }
+
+    & input[readonly],
+    select[data-readonly='true'] {
+      background: #f8f8f8;
+      border-color: #ccc;
+      pointer-events: none;
+    }
+  }
+}

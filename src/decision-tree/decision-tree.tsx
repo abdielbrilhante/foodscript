@@ -7,7 +7,6 @@ import { useDecisionTree } from './use-decision-tree';
 import { classes } from './utils';
 
 // TODO:
-// test tree box
 // stop before going to editor
 // readonly simpleton
 
@@ -47,6 +46,7 @@ export function DecisionTree(props: { graph: Graph }) {
             graph.errors.loops.some(
               (loop) => loop.includes(edge.from) && loop.includes(edge.to),
             ) && 'invalid',
+            graph.highlight.includes(edge.id) && 'highlight-path',
           )}
           style={{
             width: edge.length,
@@ -66,7 +66,11 @@ export function DecisionTree(props: { graph: Graph }) {
             onMouseDown={onNodePress}
             onMouseUp={onNodeRelease}
             onClick={onNodeClick}
-            className={classes('decision', selected === node.id && 'selected')}
+            className={classes(
+              'decision',
+              selected === node.id && 'selected',
+              graph.highlight.includes(node.id) && 'highlight-path',
+            )}
             style={{
               left: `${node.x}px`,
               top: `${node.y}px`,
@@ -74,7 +78,7 @@ export function DecisionTree(props: { graph: Graph }) {
           >
             <div className="root-label">Perception</div>
             <div className="vertexes">
-              <button className="vertex" onClick={onVertexClick}>
+              <button type="button" className="vertex" onClick={onVertexClick}>
                 Start
               </button>
             </div>
@@ -94,6 +98,7 @@ export function DecisionTree(props: { graph: Graph }) {
               hovered === node.id && 'hovered',
               graph.errors.loops.some((loop) => loop.includes(node.id)) &&
                 'invalid',
+              graph.highlight.includes(node.id) && 'highlight-path',
             )}
             style={{
               left: `${node.x}px`,

@@ -198,5 +198,10 @@
       background: #e5f1ff;
       border-color: #28f;
     }
+
+    &.highlight-path {
+      background: #e5ffea;
+      border-color: #00d030;
+    }
   }
 }
