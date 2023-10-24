@@ -192,7 +192,10 @@ export function Simulation(props: {
           <button
             type="button"
             className="switch-screen"
-            onClick={switchScreen}
+            onClick={() => {
+              game?.stop();
+              switchScreen();
+            }}
           >
             Go to editor
           </button>

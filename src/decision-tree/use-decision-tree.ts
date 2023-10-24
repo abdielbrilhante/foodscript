@@ -129,8 +129,8 @@ export function useDecisionTree(graph: Graph) {
   );
 
   const onSaveVertexes = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
       const id = event.currentTarget.parentElement!.getAttribute('data-id')!;
       const keys: string[] = [];
       const inputs =

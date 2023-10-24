@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { decisions } from '../simulation/constants';
 import type { DecisionItem } from './types';
@@ -11,10 +11,9 @@ export function DecisionNode(props: {
   onVertexClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onDelete: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onAddVertex: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onSaveVertexes: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onSaveVertexes: (event: React.FormEvent<HTMLFormElement>) => void;
   onChangePerception: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }) {
-  const vertexes = useRef<HTMLDivElement>(null);
   const [edit, setEdit] = useState(false);
   const {
     selected,
@@ -54,26 +53,29 @@ export function DecisionNode(props: {
         ×
       </button>
 
-      <button
-        type="button"
-        className="edit config"
-        onClick={edit ? onSaveVertexes : () => setEdit(true)}
-      >
-        {edit ? 'Ok' : 'Edit'}
-      </button>
-
-      {edit && (
+      {edit ? (
         <button type="button" className="add config" onClick={onAddVertex}>
           +
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="edit config"
+          onClick={() => setEdit(true)}
+        >
+          Edit
         </button>
       )}
 
       {edit ? (
-        <div className="vertexes" ref={vertexes}>
+        <form className="vertexes" onSubmit={onSaveVertexes}>
           {Object.keys(node.next).map((key) => (
             <input key={key} className="vertex" defaultValue={key} />
           ))}
-        </div>
+          <button type="submit" className="edit config">
+            Ok
+          </button>
+        </form>
       ) : (
         <div className="vertexes">
           {Object.keys(node.next).map((key) => (

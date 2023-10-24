@@ -6,15 +6,6 @@ import type { Graph } from './graph';
 import { useDecisionTree } from './use-decision-tree';
 import { classes } from './utils';
 
-// TODO:
-// stop before going to editor
-// readonly simpleton
-
-// <form> for vertexes
-// esc discards dummy vertex
-// doc click discards too
-// relative positioning
-
 export function DecisionTree(props: { graph: Graph }) {
   const { graph } = props;
   const { state, events } = useDecisionTree(graph);
