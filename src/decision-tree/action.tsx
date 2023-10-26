@@ -4,8 +4,8 @@ import { readable } from './utils';
 
 export function ActionNode(props: {
   node: ActionItem;
-  onDelete: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onChangeAction: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onDelete: React.MouseEventHandler<HTMLButtonElement>;
+  onChangeAction: React.ChangeEventHandler<HTMLSelectElement>;
 }) {
   const { node, onDelete, onChangeAction } = props;
   return (
@@ -24,7 +24,12 @@ export function ActionNode(props: {
         </select>
         <span className="arrow" />
       </label>
-      <button type="button" className="delete config" onClick={onDelete}>
+      <button
+        type="button"
+        className="delete config"
+        onClick={onDelete}
+        data-id={node.id}
+      >
         ×
       </button>
     </>

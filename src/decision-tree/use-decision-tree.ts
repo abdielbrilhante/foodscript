@@ -1,20 +1,34 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 
+import { ReactiveState, useReactiveState } from '../shared/use-reactive-state';
 import type { decisions } from '../simulation/constants';
 import type { Action } from '../types';
 import type { Graph } from './graph';
 import type { ActionItem, DecisionItem } from './types';
 import { useMouseMove } from './use-mouse-move';
 
+function getNodeId(event: React.MouseEvent | React.FormEvent) {
+  return event.currentTarget.getAttribute('data-id');
+}
+
+class DecisionTreeState extends ReactiveState {
+  $selected: string | null = null;
+  $vertex: string | null = null;
+  $hovered: string | null = null;
+
+  isLongPress = false;
+  cursorBase: { x: number; y: number } | null = null;
+
+  clearVertexState() {
+    this.$vertex = null;
+    this.$selected = null;
+  }
+}
+
 export function useDecisionTree(graph: Graph) {
   const mouseMove = useMouseMove();
 
-  const isLongPress = useRef(false);
-  const base = useRef<{ x: number; y: number } | null>(null);
-
-  const [selected, setSelected] = useState<string | null>(null);
-  const [vertex, setVertex] = useState<string | null>(null);
-  const [hovered, setHovered] = useState<string | null>(null);
+  const state = useReactiveState(() => new DecisionTreeState());
 
   const onNodePress = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -22,72 +36,70 @@ export function useDecisionTree(graph: Graph) {
         return;
       }
 
-      isLongPress.current = false;
-      const element = event.currentTarget;
-      const id = element.getAttribute('data-id')!;
+      state.isLongPress = false;
+      const id = getNodeId(event)!;
 
       mouseMove.watch((_event: MouseEvent) => {
         const node = graph.findNodeById(id)!;
 
-        if (!base.current) {
-          base.current = {
+        if (!state.cursorBase) {
+          state.cursorBase = {
             x: _event.clientX - node.x,
             y: _event.clientY - node.y,
           };
         } else {
-          isLongPress.current = true;
-          node.x = _event.clientX - base.current!.x;
-          node.y = _event.clientY - base.current!.y;
+          state.isLongPress = true;
+          node.x = _event.clientX - state.cursorBase!.x;
+          node.y = _event.clientY - state.cursorBase!.y;
           graph.updateNode(id);
         }
       });
     },
-    [graph, mouseMove],
+    [graph, state, mouseMove],
   );
 
   const onNodeRelease = useCallback(() => {
-    base.current = null;
+    state.cursorBase = null;
     mouseMove.unwatch();
-  }, [mouseMove]);
+  }, [mouseMove, state]);
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      if (isLongPress.current) {
+      if (state.isLongPress) {
         return;
       }
 
       mouseMove.unwatch();
 
-      const id = event.currentTarget.getAttribute('data-id')!;
-      if (hovered === id) {
-        const node = graph.findNodeById(selected) as DecisionItem;
-        node.next[vertex!] = id;
+      const id = getNodeId(event)!;
+      if (state.$hovered === id) {
+        const node = graph.findNodeById(state.$selected) as DecisionItem;
+        node.next[state.$vertex!] = id;
         graph.updateNode(id);
 
-        setVertex(null);
-        setHovered(null);
+        state.clearVertexState();
       } else {
-        setSelected(event.currentTarget.getAttribute('data-id'));
+        state.$selected = id;
       }
     },
-    [graph, selected, hovered, vertex, mouseMove],
+    [graph, state, mouseMove],
   );
 
   const onNodeHover = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      const id = event.currentTarget.getAttribute('data-id');
-      if (!vertex || id === selected) {
+      const id = getNodeId(event);
+      if (!state.$vertex || id === state.$selected) {
         return;
       }
 
-      setHovered(id);
+      state.$hovered = id;
     },
-    [vertex, selected],
+    [state],
   );
 
   const onNodeHoverEnd = useCallback(() => {
-    setHovered(null);
-  }, []);
+    state.$hovered = null;
+  }, [state]);
 
   const onVertexClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -99,18 +111,23 @@ export function useDecisionTree(graph: Graph) {
       const value = event.currentTarget.textContent!.toLowerCase();
 
       mouseMove.watch((_event: MouseEvent) => {
-        graph.updateDummyEdge(selected!, value, _event.clientX, _event.clientY);
+        graph.updateDummyEdge(
+          state.$selected!,
+          value,
+          _event.clientX,
+          _event.clientY,
+        );
       });
 
-      setVertex(value);
+      state.$vertex = value;
     },
-    [graph, selected, mouseMove],
+    [graph, mouseMove, state],
   );
 
   const onDelete = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
-      const id = event.currentTarget.parentElement!.getAttribute('data-id')!;
+      const id = getNodeId(event)!;
       graph.deleteNode(id);
     },
     [graph],
@@ -119,7 +136,7 @@ export function useDecisionTree(graph: Graph) {
   const onAddVertex = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
-      const id = event.currentTarget.parentElement!.getAttribute('data-id')!;
+      const id = getNodeId(event)!;
       const node = graph.findNodeById(id) as DecisionItem;
       const key = `<${Object.keys(node.next).length + 1}>`;
       node.next[key] = '';
@@ -131,7 +148,7 @@ export function useDecisionTree(graph: Graph) {
   const onSaveVertexes = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      const id = event.currentTarget.parentElement!.getAttribute('data-id')!;
+      const id = getNodeId(event)!;
       const keys: string[] = [];
       const inputs =
         event.currentTarget.parentElement!.querySelectorAll('input');
@@ -142,10 +159,9 @@ export function useDecisionTree(graph: Graph) {
       }
 
       graph.updateVertexes(id, keys);
-      setVertex(null);
-      setSelected(null);
+      state.clearVertexState();
     },
-    [graph],
+    [graph, state],
   );
 
   const onUpdateChoice = useCallback(
@@ -169,12 +185,11 @@ export function useDecisionTree(graph: Graph) {
       if (
         active &&
         (!active.contains(event.target as HTMLElement) ||
-          active.getAttribute('data-id') === graph.nodes[0].id)
+          active.getAttribute('data-id') === graph.$nodes[0].id)
       ) {
         mouseMove.unwatch();
         graph.updateNodes();
-        setSelected(null);
-        setVertex(null);
+        state.clearVertexState();
       }
     }
 
@@ -182,14 +197,10 @@ export function useDecisionTree(graph: Graph) {
     return () => {
       document.removeEventListener('click', onDocumentClick);
     };
-  }, [selected, mouseMove, graph]);
+  }, [graph, mouseMove, state]);
 
   return {
-    state: {
-      selected,
-      hovered,
-      vertex,
-    },
+    state: state,
     events: {
       onNodePress,
       onNodeRelease,

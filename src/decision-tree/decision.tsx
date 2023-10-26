@@ -1,20 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
+import { ReactiveState, useReactiveState } from '../shared/use-reactive-state';
 import { decisions } from '../simulation/constants';
 import type { DecisionItem } from './types';
 import { classes, readable } from './utils';
+
+class DecisionNodeState extends ReactiveState {
+  $edit = false;
+}
 
 export function DecisionNode(props: {
   selected: boolean;
   node: DecisionItem;
   vertex: string | null;
-  onVertexClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onDelete: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onAddVertex: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onSaveVertexes: (event: React.FormEvent<HTMLFormElement>) => void;
-  onChangePerception: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onVertexClick: React.MouseEventHandler<HTMLButtonElement>;
+  onDelete: React.MouseEventHandler<HTMLButtonElement>;
+  onAddVertex: React.MouseEventHandler<HTMLButtonElement>;
+  onSaveVertexes: React.FormEventHandler<HTMLFormElement>;
+  onChangePerception: React.ChangeEventHandler<HTMLSelectElement>;
 }) {
-  const [edit, setEdit] = useState(false);
+  const state = useReactiveState(() => new DecisionNodeState());
   const {
     selected,
     node,
@@ -27,10 +32,10 @@ export function DecisionNode(props: {
   } = props;
 
   useEffect(() => {
-    if (!selected && edit) {
-      setEdit(false);
+    if (!selected && state.$edit) {
+      state.$edit = false;
     }
-  }, [selected, edit]);
+  }, [selected, state.$edit, state]);
 
   return (
     <>
@@ -49,26 +54,38 @@ export function DecisionNode(props: {
         <span className="arrow" />
       </label>
 
-      <button type="button" className="delete config" onClick={onDelete}>
+      <button
+        type="button"
+        className="delete config"
+        data-id={node.id}
+        onClick={onDelete}
+      >
         ×
       </button>
 
-      {edit ? (
-        <button type="button" className="add config" onClick={onAddVertex}>
+      {state.$edit ? (
+        <button
+          type="button"
+          className="add config"
+          data-id={node.id}
+          onClick={onAddVertex}
+        >
           +
         </button>
       ) : (
         <button
           type="button"
           className="edit config"
-          onClick={() => setEdit(true)}
+          onClick={() => {
+            state.$edit = true;
+          }}
         >
           Edit
         </button>
       )}
 
-      {edit ? (
-        <form className="vertexes" onSubmit={onSaveVertexes}>
+      {state.$edit ? (
+        <form className="vertexes" data-id={node.id} onSubmit={onSaveVertexes}>
           {Object.keys(node.next).map((key) => (
             <input key={key} className="vertex" defaultValue={key} />
           ))}

@@ -76,14 +76,14 @@ export function DryRun(props: { graph: Graph; collapse: () => void }) {
         right: parse('right'),
       } as unknown as Perception;
 
-      graph.setHighlight(decide(perception, graph.nodes).path);
+      graph.$highlight = decide(perception, graph.$nodes).path;
     },
     [graph],
   );
 
   const onCollapse = useCallback(() => {
     collapse();
-    graph.setHighlight([]);
+    graph.$highlight = [];
   }, [collapse, graph]);
 
   return (

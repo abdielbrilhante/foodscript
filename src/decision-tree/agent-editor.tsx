@@ -1,9 +1,10 @@
 import './agent-editor.css';
 
+import { useReactiveState } from '../shared/use-reactive-state';
 import { SIMPLETON_ID } from '../simulation/dummy';
+import { AgentEditorState } from './agent-editor-state';
 import { DecisionTree } from './decision-tree';
 import { DryRun } from './dry-run';
-import { useAgentEditor } from './use-agent-editor';
 
 export function AgentEditor(props: {
   switchScreen: () => void;
@@ -11,19 +12,8 @@ export function AgentEditor(props: {
 }) {
   const { switchScreen, openHelp } = props;
 
-  const { state, setters, events } = useAgentEditor();
-  const { agent, agents, name, renaming, graph, exported, dryRun } = state;
-  const {
-    onPasteJSON,
-    onAddNew,
-    onRename,
-    onDeleteAgent,
-    onClone,
-    onCopy,
-    onAddDecision,
-    onAddAction,
-  } = events;
-  const { setName, setAgent, setDryRun } = setters;
+  const state = useReactiveState(() => new AgentEditorState());
+  const graph = state.$graph;
 
   return (
     <div className="agent-editor">
@@ -31,23 +21,23 @@ export function AgentEditor(props: {
         <div className="action-set">
           <label htmlFor="agent">
             <div>Agent</div>
-            {renaming ? (
+            {state.$renaming ? (
               <input
                 type="text"
                 name="name"
                 id="name"
                 placeholder="Agent name"
-                value={name}
-                onChange={(event) => setName(event.currentTarget.value)}
+                value={state.$name}
+                onChange={(event) => (state.$name = event.currentTarget.value)}
               />
             ) : (
               <select
                 id="agent"
-                value={agent}
-                onChange={(event) => setAgent(event.currentTarget.value)}
+                value={state.$agent}
+                onChange={(event) => (state.$agent = event.currentTarget.value)}
               >
                 <option value="">Add new</option>
-                {agents.map((agent) => (
+                {state.$agents.map((agent) => (
                   <option key={agent.id} value={agent.id}>
                     {agent.name}
                   </option>
@@ -55,7 +45,7 @@ export function AgentEditor(props: {
               </select>
             )}
           </label>
-          {!agent ? (
+          {!state.$agent ? (
             <>
               <label htmlFor="name">
                 <div>Agent name</div>
@@ -64,48 +54,69 @@ export function AgentEditor(props: {
                   name="name"
                   id="name"
                   placeholder="Agent name"
-                  value={name}
-                  onChange={(event) => setName(event.currentTarget.value)}
+                  value={state.$name}
+                  onChange={(event) => {
+                    state.$name = event.currentTarget.value;
+                  }}
                 />
               </label>
               <label htmlFor="">
                 <div>Import decision tree</div>
-                <input onChange={onPasteJSON} placeholder="Paste JSON here" />
+                <input
+                  onChange={state.onPasteJSON}
+                  placeholder="Paste JSON here"
+                />
               </label>
-              <button type="button" disabled={!name} onClick={onAddNew}>
+              <button
+                type="button"
+                disabled={!state.$name}
+                onClick={state.onAddNew}
+              >
                 Save
               </button>
             </>
           ) : (
             <>
-              {agent !== SIMPLETON_ID && (
+              {state.$agent !== SIMPLETON_ID && (
                 <>
-                  <button type="button" onClick={onRename}>
-                    {renaming ? 'Save' : 'Rename'}
+                  <button type="button" onClick={state.onRename}>
+                    {state.$renaming ? 'Save' : 'Rename'}
                   </button>
-                  <button type="button" onClick={onDeleteAgent}>
+                  <button type="button" onClick={state.onDeleteAgent}>
                     Delete
                   </button>
                 </>
               )}
-              <button type="button" onClick={onClone} disabled={!agent}>
+              <button
+                type="button"
+                onClick={state.onClone}
+                disabled={!state.$agent}
+              >
                 Clone
               </button>
               <button
                 type="button"
-                onClick={onCopy}
-                disabled={!agent || exported}
+                onClick={state.onCopy}
+                disabled={!state.$agent || state.$exported}
               >
-                {exported ? 'Copied!' : 'Copy as JSON'}
+                {state.$exported ? 'Copied!' : 'Copy as JSON'}
               </button>
             </>
           )}
         </div>
         <div className="action-set">
-          <button type="button" disabled={!agent} onClick={onAddDecision}>
+          <button
+            type="button"
+            disabled={!graph}
+            onClick={graph?.addDecisionNode}
+          >
             Add decision
           </button>
-          <button type="button" disabled={!agent} onClick={onAddAction}>
+          <button
+            type="button"
+            disabled={!graph}
+            onClick={graph?.addActionNode}
+          >
             Add action
           </button>
           <button
@@ -126,10 +137,20 @@ export function AgentEditor(props: {
 
       {graph ? (
         <div className="dry-run-container">
-          {dryRun ? (
-            <DryRun graph={graph} collapse={() => setDryRun(false)} />
+          {state.$dryRun ? (
+            <DryRun
+              graph={graph}
+              collapse={() => {
+                state.$dryRun = false;
+              }}
+            />
           ) : (
-            <button type="button" onClick={() => setDryRun(true)}>
+            <button
+              type="button"
+              onClick={() => {
+                state.$dryRun = true;
+              }}
+            >
               Test decision tree
             </button>
           )}

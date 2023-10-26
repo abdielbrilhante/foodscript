@@ -10,8 +10,6 @@ export function DecisionTree(props: { graph: Graph }) {
   const { graph } = props;
   const { state, events } = useDecisionTree(graph);
 
-  const { selected, hovered, vertex } = state;
-
   const {
     onNodePress,
     onNodeRelease,
@@ -27,17 +25,20 @@ export function DecisionTree(props: { graph: Graph }) {
 
   return (
     <div className="decision-tree" style={graph.size()}>
-      {graph.edges.map((edge) => (
+      {graph.$edges.map((edge) => (
         <div
           key={edge.id}
           data-from={edge.from}
           data-to={edge.to}
           className={classes(
             'edge',
-            graph.errors.loops.some(
+            graph.$errors.loops.some(
               (loop) => loop.includes(edge.from) && loop.includes(edge.to),
             ) && 'invalid',
-            graph.highlight.includes(edge.id) && 'highlight-path',
+            graph.$highlight.some(
+              (id, index) =>
+                edge.from === id && edge.to === graph.$highlight[index + 1],
+            ) && 'highlight-path',
           )}
           style={{
             width: edge.length,
@@ -49,7 +50,7 @@ export function DecisionTree(props: { graph: Graph }) {
         />
       ))}
 
-      {graph.nodes.map((node) =>
+      {graph.$nodes.map((node) =>
         node.type === 'start' ? (
           <div
             key={node.id}
@@ -59,8 +60,8 @@ export function DecisionTree(props: { graph: Graph }) {
             onClick={onNodeClick}
             className={classes(
               'decision',
-              selected === node.id && 'selected',
-              graph.highlight.includes(node.id) && 'highlight-path',
+              state.$selected === node.id && 'selected',
+              graph.$highlight.includes(node.id) && 'highlight-path',
             )}
             style={{
               left: `${node.x}px`,
@@ -85,11 +86,11 @@ export function DecisionTree(props: { graph: Graph }) {
             onMouseLeave={onNodeHoverEnd}
             className={classes(
               node.type,
-              selected === node.id && 'selected',
-              hovered === node.id && 'hovered',
-              graph.errors.loops.some((loop) => loop.includes(node.id)) &&
+              state.$selected === node.id && 'selected',
+              state.$hovered === node.id && 'hovered',
+              graph.$errors.loops.some((loop) => loop.includes(node.id)) &&
                 'invalid',
-              graph.highlight.includes(node.id) && 'highlight-path',
+              graph.$highlight.includes(node.id) && 'highlight-path',
             )}
             style={{
               left: `${node.x}px`,
@@ -99,8 +100,8 @@ export function DecisionTree(props: { graph: Graph }) {
             {node.type === 'decision' ? (
               <DecisionNode
                 node={node}
-                selected={selected === node.id}
-                vertex={vertex}
+                selected={state.$selected === node.id}
+                vertex={state.$vertex}
                 onVertexClick={onVertexClick}
                 onDelete={onDelete}
                 onAddVertex={onAddVertex}

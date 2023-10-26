@@ -1,10 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import './simulation.css';
 
 import { LocalStorage } from '../shared/local-storage';
+import { ReactiveState, useReactiveState } from '../shared/use-reactive-state';
 import { agentService } from './agents';
 import { Game } from './game';
+
+class SimulationState extends ReactiveState {
+  $game?: Game;
+  $running = false;
+  $pristine = true;
+}
 
 export function Simulation(props: {
   switchScreen: () => void;
@@ -13,10 +20,7 @@ export function Simulation(props: {
   const { switchScreen, openHelp } = props;
 
   const agents = useMemo(() => agentService.load(), []);
-
-  const [game, setGame] = useState<Game>();
-  const [running, setRunning] = useState(false);
-  const [pristine, setPristine] = useState(true);
+  const state = useReactiveState(() => new SimulationState());
 
   function inputProps(name: string, defaultValue?: number) {
     return {
@@ -27,35 +31,34 @@ export function Simulation(props: {
         event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
       ) => {
         LocalStorage.setItem(name, event.currentTarget.value);
-        setPristine(false);
+        state.$pristine = false;
       },
     };
   }
 
   function setup() {
-    setGame((current) => {
-      setPristine(true);
-      const form = new FormData(
-        document.querySelector('.arena-container form') as HTMLFormElement,
-      );
+    if (state.$game) {
+      state.$game.stop();
+    }
 
-      if (current) {
-        current.stop();
-      }
+    const form = new FormData(
+      document.querySelector('.arena-container form') as HTMLFormElement,
+    );
 
-      setRunning(false);
-
-      return new Game({
-        setRunning: setRunning,
-        fps: Number(form.get('fps')),
-        rows: Number(form.get('rows')),
-        placement: String(form.get('placement')),
-        agentDensity: Number(form.get('agentDensity')),
-        goldDensity: Number(form.get('goldDensity')),
-        maxCarries: Number(form.get('maxCarries')),
-        maxRuns: Number(form.get('maxRuns')),
-        agents: [form.get('red') as string, form.get('blue') as string],
-      });
+    state.$pristine = true;
+    state.$running = false;
+    state.$game = new Game({
+      setRunning: (value: boolean) => {
+        state.$running = value;
+      },
+      fps: Number(form.get('fps')),
+      rows: Number(form.get('rows')),
+      placement: String(form.get('placement')),
+      agentDensity: Number(form.get('agentDensity')),
+      goldDensity: Number(form.get('goldDensity')),
+      maxCarries: Number(form.get('maxCarries')),
+      maxRuns: Number(form.get('maxRuns')),
+      agents: [form.get('red') as string, form.get('blue') as string],
     });
   }
 
@@ -65,14 +68,14 @@ export function Simulation(props: {
   }
 
   function onStartStop() {
-    if (running) {
-      game!.stop();
+    if (state.$running) {
+      state.$game!.stop();
     } else {
-      game!.start();
+      state.$game!.start();
     }
   }
 
-  useEffect(setup, []);
+  useEffect(setup, [state]);
 
   return (
     <div className="arena-container">
@@ -80,7 +83,7 @@ export function Simulation(props: {
         <form className="controls" onSubmit={onSetup}>
           <label htmlFor="red">
             <div>Red agent</div>
-            <select {...inputProps('red')} data-readonly={running}>
+            <select {...inputProps('red')} data-readonly={state.$running}>
               {agents.map((agent) => (
                 <option key={agent.id} value={agent.id}>
                   {agent.name}
@@ -90,7 +93,7 @@ export function Simulation(props: {
           </label>
           <label htmlFor="blue">
             <div>Blue agent</div>
-            <select {...inputProps('blue')} data-readonly={running}>
+            <select {...inputProps('blue')} data-readonly={state.$running}>
               {agents.map((agent) => (
                 <option key={agent.id} value={agent.id}>
                   {agent.name}
@@ -103,7 +106,7 @@ export function Simulation(props: {
             <select
               {...inputProps('placement')}
               required
-              data-readonly={running}
+              data-readonly={state.$running}
             >
               <option value="mixed">Random (mixed)</option>
               <option value="splitY">Y-wise split</option>
@@ -115,7 +118,7 @@ export function Simulation(props: {
             <div>Rows</div>
             <input
               {...inputProps('rows', 30)}
-              readOnly={running}
+              readOnly={state.$running}
               type="number"
               required
               style={{ width: 55 }}
@@ -125,7 +128,7 @@ export function Simulation(props: {
             <div>Agent %</div>
             <input
               {...inputProps('agentDensity', 10)}
-              readOnly={running}
+              readOnly={state.$running}
               type="number"
               required
               max={40}
@@ -136,7 +139,7 @@ export function Simulation(props: {
             <div>Gold %</div>
             <input
               {...inputProps('goldDensity', 30)}
-              readOnly={running}
+              readOnly={state.$running}
               type="number"
               required
               max={60}
@@ -147,7 +150,7 @@ export function Simulation(props: {
             <div>Max carries</div>
             <input
               {...inputProps('maxCarries', 30)}
-              readOnly={running}
+              readOnly={state.$running}
               type="number"
               required
               style={{ width: 75 }}
@@ -157,7 +160,7 @@ export function Simulation(props: {
             <div>FPS</div>
             <input
               {...inputProps('fps', 20)}
-              readOnly={running}
+              readOnly={state.$running}
               type="number"
               required
               style={{ width: 60 }}
@@ -167,19 +170,19 @@ export function Simulation(props: {
             <div>Max runs</div>
             <input
               {...inputProps('maxRuns', 1000)}
-              readOnly={running}
+              readOnly={state.$running}
               type="number"
               required
               style={{ width: 70 }}
             />
           </label>
-          <button type="submit">{pristine ? 'Reset' : 'Setup'}</button>
+          <button type="submit">{state.$pristine ? 'Reset' : 'Setup'}</button>
           <button
             type="button"
             onClick={onStartStop}
-            disabled={!game || !pristine}
+            disabled={!state.$game || !state.$pristine}
           >
-            {running ? 'Stop' : 'Start'}
+            {state.$running ? 'Stop' : 'Start'}
           </button>
         </form>
         <div className="stats">
@@ -193,7 +196,7 @@ export function Simulation(props: {
             type="button"
             className="switch-screen"
             onClick={() => {
-              game?.stop();
+              state.$game?.stop();
               switchScreen();
             }}
           >

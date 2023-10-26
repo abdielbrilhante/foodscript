@@ -1,61 +1,64 @@
+import { ReactiveState } from '../shared/use-reactive-state';
 import { agentService } from '../simulation/agents';
 import { actions, decisions } from '../simulation/constants';
 import { agentTemplateSchema } from './schema';
 import type { AgentTemplate, AgentTree, DecisionItem, EdgeItem } from './types';
 import { randId } from './utils';
 
-export class Graph {
-  private timeout: number | null = null;
+export class Graph extends ReactiveState {
+  timeout: number | null = null;
 
-  name: string;
-  nodes: AgentTree;
-  edges: EdgeItem[] = [];
-  highlight: string[] = [];
-  errors: {
+  $nodes: AgentTree;
+  $edges: EdgeItem[] = [];
+  $highlight: string[] = [];
+  $errors: {
     loops: string[][];
   } = {
     loops: [],
   };
 
-  constructor(
-    private id: string,
-    private trigger: () => void,
-  ) {
+  $name: string;
+
+  constructor(private id: string) {
+    super();
     const agentDef = agentService.parse(id)!;
-    this.name = agentDef.name;
-    this.nodes = agentDef.tree;
+    this.$name = agentDef.name;
+    this.$nodes = agentDef.tree;
+
+    setTimeout(this.rebuildEdges);
   }
 
-  rerender(delayPersist = true) {
-    this.check();
-    this.trigger();
-
-    if (delayPersist) {
-      if (this.timeout) {
-        clearTimeout(this.timeout);
-      }
-
-      this.timeout = setTimeout(() => {
-        agentService.persist({
-          id: this.id,
-          name: this.name,
-          tree: this.nodes,
-        });
-      }, 500);
-    } else {
-      agentService.persist({
-        id: this.id,
-        name: this.name,
-        tree: this.nodes,
-      });
+  write(key: keyof Graph, value: unknown) {
+    if (key !== '$errors') {
+      this.check();
     }
+
+    super.write(key, value);
   }
+
+  commit() {
+    super.commit();
+
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+
+    this.timeout = setTimeout(this.persist, 500);
+  }
+
+  persist = () => {
+    agentService.persist({
+      id: this.id,
+      name: this.$name,
+      tree: this.$nodes,
+    });
+  };
 
   size() {
     let height = 0;
     let width = 0;
-    for (const node of this.nodes) {
-      const element = document.querySelector(`[data-id="${node.id}"]`);
+    for (const node of this.$nodes) {
+      const element = Graph.queryByDataId(node.id);
       if (element) {
         const rect = element.getBoundingClientRect();
         height = Math.max(height, node.y + rect.height);
@@ -67,12 +70,14 @@ export class Graph {
   }
 
   check() {
-    this.errors.loops = this.visit(this.nodes[0].id);
+    this.$errors = {
+      loops: this.visit(this.$nodes[0].id),
+    };
   }
 
   visit(id: string | null, paths: string[] = [], loops: string[][] = []) {
     const node = this.findNodeById(id);
-    if (id && node && node.type === 'decision') {
+    if (id && node && (node.type === 'decision' || node.type === 'start')) {
       if (paths.includes(id)) {
         paths.push(id);
         loops.push(paths);
@@ -88,40 +93,31 @@ export class Graph {
     return loops;
   }
 
-  updateName(name: string) {
-    this.name = name;
-    this.rerender(false);
-  }
-
   rebuildEdges = (id?: string) => {
-    const current = this.edges;
-
-    this.edges = [
-      id
-        ? current[0]
-        : {
-            id: randId(),
-            type: 'edge',
-            from: '',
-            to: '',
-            key: '',
-            length: 0,
-            x: 0,
-            y: 0,
-            rotation: 0,
-          },
+    const next: EdgeItem[] = [
+      {
+        id: randId(),
+        type: 'edge',
+        from: '',
+        to: '',
+        key: '',
+        length: 0,
+        x: 0,
+        y: 0,
+        rotation: 0,
+      },
     ];
 
-    for (const node of this.nodes) {
+    for (const node of this.$nodes) {
       if (node.type === 'decision' || node.type === 'start') {
         for (const [key, to] of Object.entries(node.next)) {
           if (id && node.id !== id && to !== id) {
-            const stable = current.find(
+            const stable = this.$edges.find(
               (edge) =>
                 edge.from === node.id && edge.key === key && edge.to === to,
             );
             if (stable) {
-              this.edges.push(stable);
+              next.push(stable);
               continue;
             }
           }
@@ -133,7 +129,7 @@ export class Graph {
           });
 
           if (position) {
-            this.edges.push({
+            next.push({
               id: randId(),
               type: 'edge',
               ...position,
@@ -142,15 +138,17 @@ export class Graph {
         }
       }
     }
+
+    this.$edges = next;
   };
 
   findNodeById(id: string | null) {
-    return this.nodes.find((node) => node.id === id);
+    return this.$nodes.find((node) => node.id === id);
   }
 
-  addDecisionNode() {
+  addDecisionNode = () => {
     const id = randId();
-    this.nodes.push({
+    this.$nodes = this.$nodes.concat({
       id: id,
       type: 'decision',
       next: {
@@ -160,51 +158,46 @@ export class Graph {
       test: decisions[0],
       x: 0,
       y: 0,
-    });
+    }) as AgentTree;
     this.updateNode(id);
-  }
+  };
 
-  addActionNode() {
+  addActionNode = () => {
     const id = randId();
-    this.nodes.push({
+    this.$nodes = this.$nodes.concat({
       id: id,
       type: 'action',
       command: actions[0],
       x: 0,
       y: 0,
-    });
+    }) as AgentTree;
     this.updateNode(id);
-  }
-
-  setHighlight(ids: string[]) {
-    this.highlight = ids;
-    this.rerender();
-  }
+  };
 
   updateNode(id: string) {
-    this.nodes = this.nodes.map((node) => {
+    this.$nodes = this.$nodes.map((node) => {
       return id === node.id ? { ...node } : node;
     }) as AgentTree;
 
     this.rebuildEdges(id);
-    this.rerender();
   }
 
   updateNodes() {
     this.rebuildEdges();
-    this.rerender();
   }
 
   updateDummyEdge(from: string, vertex: string, x: number, y: number) {
-    this.edges[0] = {
-      ...this.edges[0],
-      ...this.computeDummyEdgePosition(from, vertex, x, y),
-    };
-    this.rerender();
+    this.$edges = [
+      {
+        ...this.$edges[0],
+        ...this.computeDummyEdgePosition(from, vertex, x, y),
+      },
+      ...this.$edges.slice(1),
+    ];
   }
 
   deleteNode = (id: string) => {
-    for (const node of this.nodes) {
+    for (const node of this.$nodes) {
       if (node.type === 'decision') {
         for (const [key, value] of Object.entries(node.next)) {
           if (value === id) {
@@ -214,9 +207,8 @@ export class Graph {
       }
     }
 
-    this.nodes = this.nodes.filter((node) => node.id !== id) as AgentTree;
+    this.$nodes = this.$nodes.filter((node) => node.id !== id) as AgentTree;
     this.rebuildEdges(id);
-    this.rerender();
   };
 
   updateVertexes = (id: string, keys: string[]) => {
@@ -228,7 +220,6 @@ export class Graph {
 
     node.next = updated;
     this.rebuildEdges(id);
-    this.rerender();
   };
 
   computeDummyEdgePosition(
@@ -239,9 +230,10 @@ export class Graph {
   ) {
     const from = this.findNodeById(fromId) as DecisionItem;
 
-    const fromRect = document
-      .querySelector(`[data-id="${from.id}"]`)!
-      .getBoundingClientRect() ?? { width: 160, height: 60 };
+    const fromRect = Graph.queryByDataId(fromId)!.getBoundingClientRect() ?? {
+      width: 160,
+      height: 60,
+    };
 
     const paths = Object.keys(from.next);
     const numPaths = paths.length;
@@ -277,13 +269,9 @@ export class Graph {
     const numPaths = paths.length;
     const toIndex = paths.indexOf(key);
 
-    const fromRect = document
-      .querySelector(`[data-id="${from.id}"]`)!
-      .getBoundingClientRect();
+    const fromRect = Graph.queryByDataId(fromId)!.getBoundingClientRect();
 
-    const toRect = document
-      .querySelector(`[data-id="${to.id}"]`)!
-      .getBoundingClientRect();
+    const toRect = Graph.queryByDataId(to.id)!.getBoundingClientRect();
 
     const fx = from.x + ((toIndex + 0.5) * fromRect.width) / numPaths;
     const fy = from.y + fromRect.height;
@@ -305,20 +293,24 @@ export class Graph {
   }
 
   replace(agentDef: AgentTemplate) {
-    this.name = agentDef.name;
-    this.nodes = agentDef.tree;
+    this.$name = agentDef.name;
+    this.$nodes = agentDef.tree;
   }
 
   toJSON() {
     return JSON.stringify(
       {
         id: this.id,
-        name: this.name,
-        tree: this.nodes,
+        name: this.$name,
+        tree: this.$nodes,
       },
       null,
       4,
     );
+  }
+
+  static queryByDataId(id: string) {
+    return document.querySelector(`[data-id=${id}]`);
   }
 
   static fromJSON(json: string) {

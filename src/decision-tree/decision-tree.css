@@ -72,6 +72,10 @@
     &.invalid {
       border-color: #a42;
     }
+
+    &.highlight-path {
+      border-color: #00d030;
+    }
   }
 
   & .action {

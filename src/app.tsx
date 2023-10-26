@@ -1,38 +1,46 @@
-import { useCallback, useState } from 'react';
-
 import { AgentEditor } from './decision-tree/agent-editor';
 import { Help } from './help/help';
 import { LocalStorage } from './shared/local-storage';
+import { ReactiveState, useReactiveState } from './shared/use-reactive-state';
 import { Simulation } from './simulation/simulation';
 
+class AppState extends ReactiveState {
+  $help = !LocalStorage.getItem('helpSeen');
+  $screen: 'editor' | 'simulation' = (LocalStorage.getItem('screen') ||
+    'simulation') as 'editor' | 'simulation';
+
+  switchScreen = () => {
+    this.$screen = this.$screen === 'editor' ? 'simulation' : 'editor';
+    LocalStorage.setItem('screen', this.$screen);
+  };
+
+  openHelp = () => {
+    this.$help = true;
+  };
+
+  closeHelp = () => {
+    this.$help = false;
+  };
+}
+
 export function App() {
-  const [help, setHelp] = useState(() => !LocalStorage.getItem('helpSeen'));
-
-  const [screen, setScreen] = useState<'editor' | 'simulation'>(
-    (LocalStorage.getItem('screen') || 'simulation') as 'editor' | 'simulation',
-  );
-
-  const switchScreen = useCallback(() => {
-    setScreen((current) => {
-      const next = current === 'editor' ? 'simulation' : 'editor';
-      LocalStorage.setItem('screen', next);
-      return next;
-    });
-  }, []);
-
-  const openHelp = useCallback(() => {
-    setHelp(true);
-  }, []);
+  const state = useReactiveState(() => new AppState());
 
   return (
     <main>
-      {screen === 'editor' ? (
-        <AgentEditor switchScreen={switchScreen} openHelp={openHelp} />
+      {state.$screen === 'editor' ? (
+        <AgentEditor
+          switchScreen={state.switchScreen}
+          openHelp={state.openHelp}
+        />
       ) : (
-        <Simulation switchScreen={switchScreen} openHelp={openHelp} />
+        <Simulation
+          switchScreen={state.switchScreen}
+          openHelp={state.openHelp}
+        />
       )}
 
-      {help ? <Help close={() => setHelp(false)} /> : null}
+      {state.$help ? <Help close={state.closeHelp} /> : null}
     </main>
   );
 }
